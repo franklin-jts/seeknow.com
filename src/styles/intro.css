@@ -1,0 +1,38 @@
+/* ═══════════════════════════════════════════════════════════════
+   SeekNow Intro — canvas-based animation
+   The canvas handles all visuals. CSS only manages
+   page-content visibility during and after the intro.
+═══════════════════════════════════════════════════════════════ */
+
+/* ── Hide page content while intro plays ── */
+body.intro-running #top-header,
+body.intro-running main,
+body.intro-running footer {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Reveal page after intro ── */
+body.intro-done #top-header,
+body.intro-done main,
+body.intro-done footer {
+  animation: introPageReveal 0.75s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+body.intro-done main   { animation-delay: 0.07s }
+body.intro-done footer { animation-delay: 0.13s }
+
+@keyframes introPageReveal {
+  from { opacity: 0; transform: translateY(16px) }
+  to   { opacity: 1; transform: none }
+}
+
+/* ── Accessibility: skip animation entirely ── */
+@media (prefers-reduced-motion: reduce) {
+  #intro-canvas { display: none !important }
+  body.intro-running #top-header,
+  body.intro-running main,
+  body.intro-running footer {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+}

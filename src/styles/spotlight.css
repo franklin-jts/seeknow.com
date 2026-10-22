@@ -1,0 +1,90 @@
+/* ═══════════════════════════════════════════════════════════════
+   Torch / spotlight  —  cursor-driven beam of light over text
+   Matching the hero screenshot: dark veil + crisp bright copy
+═══════════════════════════════════════════════════════════════ */
+
+.spot-zone {
+  position: relative;
+  --mx: 50%;
+  --my: 50%;
+  --cx: 50vw;
+  --cy: 40vh;
+  --spot-r: 220px;
+}
+
+/* ── Dark veil — covers the whole viewport as a fixed overlay ── */
+.spot-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+
+  background: radial-gradient(
+    circle calc(var(--spot-r) * 1.4) at var(--cx) var(--cy),
+    /* dead centre: fully transparent — the torch hole */
+    transparent                      0%,
+    rgba(5, 2, 14, 0.08)            40%,
+    rgba(5, 2, 14, 0.52)            65%,
+    rgba(5, 2, 14, 0.80)            85%,
+    rgba(5, 2, 14, 0.88)           100%
+  );
+}
+
+/* ── Lit copy — bright duplicate, masked to the beam circle ── */
+.spot-lit {
+  position: absolute !important;
+  inset: 0;
+  margin: 0 !important;
+  max-width: none !important;
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+
+  /* Soft-edged circle mask centred on cursor-relative position */
+  -webkit-mask-image: radial-gradient(
+    circle var(--spot-r) at var(--mx) var(--my),
+    #000        0%,
+    #000        30%,
+    rgba(0,0,0,0.88) 52%,
+    rgba(0,0,0,0.35) 72%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    circle var(--spot-r) at var(--mx) var(--my),
+    #000        0%,
+    #000        30%,
+    rgba(0,0,0,0.88) 52%,
+    rgba(0,0,0,0.35) 72%,
+    transparent 100%
+  );
+
+  /* Boost brightness + add a faint white text-glow */
+  filter:
+    brightness(1.75)
+    saturate(1.05)
+    drop-shadow(0 0 12px rgba(255, 255, 255, 0.14));
+}
+
+.spot-lit * { pointer-events: none !important; }
+
+/* ── Activate on hover ── */
+.spot-zone.is-lit > .spot-dim,
+.spot-zone.is-lit > .spot-lit {
+  opacity: 1;
+}
+
+/* ── Reduced motion: instant switch, no fade ── */
+.spot-zone.is-calm > .spot-dim,
+.spot-zone.is-calm > .spot-lit {
+  transition: none;
+}
+
+/* ── Touch / coarse pointer: no torch ── */
+@media (hover: none), (pointer: coarse) {
+  .spot-dim,
+  .spot-lit { display: none !important; }
+}
