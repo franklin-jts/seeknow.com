@@ -15,6 +15,7 @@ import Faq from './components/Faq.jsx';
 import Pricing from './components/Pricing.jsx';
 import Finale from './components/Finale.jsx';
 import Footer from './components/Footer.jsx';
+import GlobalSpotlight from './components/GlobalSpotlight.jsx';
 
 export default function App() {
   const [introDone, setIntroDone] = useState(false);
@@ -31,6 +32,9 @@ export default function App() {
 
   return (
     <>
+      {/* Page-wide spotlight — follows cursor across all sections & images */}
+      <GlobalSpotlight radius={300} />
+
       {/* Cinematic intro — removed from DOM once complete */}
       <IntroScreen onComplete={handleIntroDone} />
 

@@ -52,7 +52,7 @@ export default function init() {
   const lerp  = (a, b, t) => a + (b - a) * t;
   const ease  = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
 
-  const mqW = matchMedia('(min-width: 1024px) and (min-height: 620px)');
+  const mqW = matchMedia('(min-width: 860px) and (min-height: 560px)');
   const mqR = matchMedia('(prefers-reduced-motion: reduce)');
   let pinned = false, sw = 0, sh = 0, ww = 0, H = 0, S = null, orbitOp = 0, spinId = 0, geo = null;
 
@@ -65,18 +65,24 @@ export default function init() {
     const nextB = P(fx + sw*.3,  sh*.25, .48, -18, .8);
     const pastA = P(fx + sw*.2, -sh*.17,  .6, -14, .62);
     const pastB = P(fx + sw*.3, -sh*.25, .48, -18, .8);
+    const orbit = { refer: P(-sw*.3, sh*.17, .58, 8, 0), console: P(0, sh*.12, .62, 0, 0), people: P(sw*.3, sh*.17, .58, -8, 0) };
     return [
-      { refer: P(-sw*.29, top(.8)+44, .8, 14, .16), console: P(0, top(1), 1, 0, 0), people: P(sw*.29, top(.8)+44, .8, -14, .16) },
+      // S[0]: orbit view first — shown immediately after hero
+      orbit,
+      // S[1]: 01 Discover — Refer Now in focus
       { refer: focus, console: nextA, people: nextB },
+      // S[2]: 02 Recruit — Console in focus
       { refer: pastA, console: focus, people: nextA },
+      // S[3]: 03 Manage — Seek People in focus
       { refer: pastB, console: pastA, people: focus },
-      { refer: P(-sw*.3, sh*.17, .58, 8, 0), console: P(0, sh*.12, .62, 0, 0), people: P(sw*.3, sh*.17, .58, -8, 0) }
+      // S[4]: final spread (same as orbit — smooth loop back)
+      orbit,
     ];
   };
 
   const measure = () => {
     sw = stage.clientWidth; sh = stage.clientHeight;
-    ww = Math.round(Math.min(sw * .5, 760, (sh - 200) * 1.45));
+    ww = Math.round(Math.min(sw * .48, 700, (sh - 200) * 1.35));
     H  = ww * 440 / 680 + 32;
     keys.forEach(k => { pw[k].style.width = ww + 'px'; });
     orbit.setAttribute('viewBox', '0 0 ' + sw + ' ' + sh);
@@ -152,12 +158,15 @@ export default function init() {
     caps.forEach((c, n) => {
       let op, tr;
       if (n < 3) {
+        // caps 0,1,2 = data-cap 1,2,3 (Discover, Recruit, Manage)
+        // shift by 1 so they map to T steps 1,2,3
         const d = t - (n + 1);
         op = clamp(1 - Math.abs(d) * 2.4);
         tr = `translateY(calc(-50% + ${(-d * 40).toFixed(1)}px))`;
       } else {
-        op = clamp((t - 3.45) / .45);
-        tr = `translate(-50%, ${((1 - op) * 24).toFixed(1)}px)`;
+        // cap-u (data-cap="4") — "Three products" — show at T≈0, fade out by T≈0.5
+        op = clamp(1 - T / 0.5);
+        tr = `translate(-50%, ${(T * 24).toFixed(1)}px)`;
       }
       c.style.opacity = op.toFixed(3);
       c.style.transform = tr;
@@ -166,6 +175,7 @@ export default function init() {
 
     hint.style.opacity = clamp(1 - T * 5).toFixed(3);
 
+    // Handoff chip: shows during transitions between steps 1→2 and 2→3
     if ((i === 1 || i === 2) && e > 0 && e < 1) {
       const from = cur[keys[i - 1]], to = cur[keys[i]];
       const fx0 = from.x - ww * from.s * .16, fy0 = from.y - H * from.s * .12;
@@ -180,7 +190,11 @@ export default function init() {
       handoff.style.opacity = '0';
     }
 
-    orbitOp = clamp((t - 3.3) / .5);
+    // orbit: show fully at T=0 (initial), fade out as user scrolls into step 1
+    // and fade back in at the end (T>3.3)
+    const orbitAtStart = clamp(1 - T / 0.6);
+    const orbitAtEnd   = clamp((t - 3.3) / .5);
+    orbitOp = Math.max(orbitAtStart, orbitAtEnd);
     orbit.style.opacity = orbitOp.toFixed(3);
     if (orbitOp > 0 && !spinId) spinId = requestAnimationFrame(spin);
   };
@@ -211,45 +225,241 @@ export default function init() {
 
   /* ---- Product showcase animations (story-list section) ---- */
   initProductCards();
+
+  /* ---- Ecosystem orbit preview animations ---- */
+  initOrbitPreview();
+
+  /* ---- Global section scroll-reveal ---- */
+  initSectionReveal();
 }
 
 function initProductCards() {
-  /* ── Scroll-in reveals ── */
-  const revealEls = [
-    document.getElementById('pc-head'),
-    document.getElementById('pc-tabs'),
-    document.getElementById('pc-strip'),
-  ].filter(Boolean);
+  /* ── story-list scroll-reveal: intro heading + 3 cards ── */
+  const slIntro = document.getElementById('sl-intro');
+  const slCards = [...document.querySelectorAll('.sl-card')];
 
-  const cards = [...document.querySelectorAll('.pc-card')];
+  // Intro observer
+  if (slIntro) {
+    const introIO = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        slIntro.classList.add('sl-in');
+        introIO.disconnect();
+      }
+    }, { threshold: 0.15, rootMargin: '0px 0px -30px 0px' });
+    introIO.observe(slIntro);
+  }
 
-  const revealIO = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('in-view');
-        revealIO.unobserve(e.target);
+  // Cards: each observed individually so they fire one by one as they scroll into view
+  slCards.forEach(card => {
+    const cardIO = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        card.classList.add('sl-in');
+        cardIO.disconnect();
+      }
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    cardIO.observe(card);
+  });
+}
+
+/* ─────────────────────────────────────────────
+   Section scroll-reveal
+   Sections after the hero animate in one by one
+   as they enter the viewport.
+───────────────────────────────────────────── */
+function initSectionReveal() {
+  // Sections to animate in — ordered after #top (hero).
+  // #platform / #story are excluded because they use their own pinned-scroll animation.
+  // #story-list (mobile cards) already has in-view logic for cards; we skip it to avoid double-animating.
+  const SECTION_IDS = [
+    'why-seek-now',
+    'ecosystem',
+    'roles',
+    'capabilities',
+    'trust',
+    'faq',
+    'pricing',
+    'finale',
+  ];
+
+  // Add the reveal class to each section and set up child staggering
+  SECTION_IDS.forEach(id => {
+    const sec = document.getElementById(id);
+    if (!sec) return;
+
+    // Don't double-apply
+    if (sec.classList.contains('sr-reveal')) return;
+    sec.classList.add('sr-reveal');
+
+    // For sections that don't have .inner, try to stagger their visible children
+    const inner = sec.querySelector('.inner');
+    if (inner) {
+      [...inner.children].forEach(child => child.classList.add('sr-child'));
+    } else {
+      // Direct children fallback
+      [...sec.children].slice(0, 8).forEach(child => child.classList.add('sr-child'));
+    }
+  });
+
+  // IntersectionObserver: trigger each section once it's 10% visible
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('sr-visible');
+        io.unobserve(entry.target); // fire once only
       }
     });
-  }, { threshold: 0.12 });
+  }, {
+    threshold: 0.08,       // fire when 8% of section is in view
+    rootMargin: '0px 0px -40px 0px', // slightly before it fully enters
+  });
 
-  revealEls.forEach(el => revealIO.observe(el));
-  cards.forEach(c => revealIO.observe(c));
+  // Observe all marked sections
+  document.querySelectorAll('.sr-reveal').forEach(sec => io.observe(sec));
+}
 
-  /* ── Tab switcher ── */
-  const tabs = [...document.querySelectorAll('.pc-tab')];
+/* ─────────────────────────────────────────────
+   Ecosystem orbit preview — exact Story animations
+   + interactive tab switcher for centre window.
+───────────────────────────────────────────── */
+function initOrbitPreview() {
+  const preview = document.querySelector('.s4-orbit-preview');
+  if (!preview) return;
 
-  const setActive = idx => {
+  const wins    = [...preview.querySelectorAll('.s4-op-win')];
+  const orbitEl = document.getElementById('s4-orbit-svg');
+  const tabs    = [...document.querySelectorAll('.s4-tabsw .ptab')];
+  if (!wins.length || !orbitEl) return;
+
+  const $ = id => document.getElementById(id);
+
+  // Window components in slot order: [ReferNow=0, Console=1, SeekPeople=2]
+  // The three .s4-op-win slots: left(0), center(1), right(2)
+  // We only swap the CENTRE slot's content when a tab is clicked.
+  // We keep a logical "active" index and replace the centre win's inner content.
+
+  // Map tab index → which window component to show in centre
+  // Default active = Console (tab 1), which is already in centre
+  let activeTab = 1;
+  let swapping  = false;
+
+  /* ── Measure & draw orbit SVG ── */
+  let spinId = 0, revealed = false;
+
+  const measure = () => {
+    const pr = preview.getBoundingClientRect();
+    const W  = pr.width, H = pr.height || 400;
+    orbitEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    const cx = W / 2, cy = H * 0.72, rx = W * 0.44, ry = H * 0.22;
+    ['s4-ring','s4-ring2'].forEach(id => {
+      const e = $(id); if (!e) return;
+      e.setAttribute('cx', cx); e.setAttribute('cy', cy);
+      e.setAttribute('rx', rx); e.setAttribute('ry', ry);
+    });
+    const nodeXs = [W * 0.17, W * 0.50, W * 0.83];
+    const nodeY  = cy + ry * 0.85;
+    nodeXs.forEach((nx, i) => {
+      const n = $('s4-n' + i); const t = $('s4-t' + i);
+      if (n) { n.setAttribute('cx', nx); n.setAttribute('cy', nodeY); }
+      if (t) { t.setAttribute('x',  nx); t.setAttribute('y',  nodeY + 20); }
+    });
+    const link = $('s4-link');
+    if (link) {
+      const [x0,x1,x2] = nodeXs; const y = nodeY;
+      link.setAttribute('d',
+        `M${x0},${y} Q${(x0+x1)/2},${y+28} ${x1},${y}` +
+        ` Q${(x1+x2)/2},${y+28} ${x2},${y}`
+      );
+    }
+  };
+
+  /* ── Spinning spark ── */
+  const spin = ts => {
+    if (!revealed) { spinId = 0; return; }
+    const pr = preview.getBoundingClientRect();
+    const W = pr.width, H = pr.height || 400;
+    const cx = W/2, cy = H*0.72, rx = W*0.44, ry = H*0.22;
+    const a  = ts / 5200;
+    const x  = cx + rx * Math.cos(a);
+    const y  = cy + ry * Math.sin(a);
+    ['s4-halo','s4-spark'].forEach(id => {
+      const e = $(id); if (!e) return;
+      e.setAttribute('cx', x); e.setAttribute('cy', y);
+    });
+    spinId = requestAnimationFrame(spin);
+  };
+
+  /* ── Tab switcher: swap centre window with animation ── */
+  const WIN_CONTENTS = [0, 1, 2]; // indices matching data-win attributes
+  const centreWin = preview.querySelector('.s4-op-win--center');
+
+  const setActiveTab = (idx) => {
+    if (idx === activeTab || swapping || !centreWin) return;
+    swapping = true;
+
+    // Update tab button states
     tabs.forEach((t, i) => {
       const on = i === idx;
-      t.classList.toggle('active', on);
+      t.classList.toggle('ptab--active', on);
       t.setAttribute('aria-selected', String(on));
     });
-    cards.forEach((c, i) => {
-      c.classList.toggle('pc-dimmed', i !== idx);
-    });
+
+    // Highlight active node
+    for (let i = 0; i < 3; i++) {
+      const n = $('s4-n' + i);
+      if (n) n.classList.toggle('s4-node-active', i === idx);
+    }
+
+    // Swap animation: out → swap content → in
+    centreWin.classList.remove('s4-op-swap-in');
+    centreWin.classList.add('s4-op-swap-out');
+
+    setTimeout(() => {
+      // Swap the data-win attribute so CSS/JS knows which is active
+      centreWin.setAttribute('data-win', String(idx));
+
+      // Replace inner HTML with the correct window
+      // We find the sibling win that has the content we want
+      // and copy its inner HTML into centre
+      const sourceWin = preview.querySelector(`.s4-op-win[data-win="${idx}"]`);
+      const leftWin   = preview.querySelector('.s4-op-win--left');
+      const rightWin  = preview.querySelector('.s4-op-win--right');
+
+      // Rotate: old centre content goes to a side, new active goes to centre
+      // Simple approach: swap innerHTML between centre and the source side
+      if (sourceWin && sourceWin !== centreWin) {
+        const tmp = centreWin.innerHTML;
+        centreWin.innerHTML = sourceWin.innerHTML;
+        sourceWin.innerHTML = tmp;
+        sourceWin.setAttribute('data-win', String(activeTab));
+      }
+
+      activeTab = idx;
+
+      centreWin.classList.remove('s4-op-swap-out');
+      centreWin.classList.add('s4-op-swap-in');
+
+      setTimeout(() => {
+        centreWin.classList.remove('s4-op-swap-in');
+        swapping = false;
+      }, 450);
+    }, 350);
   };
 
   tabs.forEach((tab, i) => {
-    tab.addEventListener('click', () => setActive(i));
+    tab.addEventListener('click', () => setActiveTab(i));
   });
+
+  /* ── Reveal on scroll ── */
+  const io = new IntersectionObserver(entries => {
+    if (!entries[0].isIntersecting) return;
+    revealed = true;
+    wins.forEach((win, i) => setTimeout(() => win.classList.add('s4-op-in'), i * 130));
+    preview.classList.add('s4-op-in');
+    if (!spinId) spinId = requestAnimationFrame(spin);
+    io.disconnect();
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+  measure();
+  window.addEventListener('resize', measure);
+  io.observe(preview);
 }

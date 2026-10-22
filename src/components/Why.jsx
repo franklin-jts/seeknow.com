@@ -3,71 +3,91 @@ import useInit from '../hooks/useInit';
 import init from '../scripts/s3-why.js';
 import logo from '../assets/seek-now-logo.png';
 
-// Space (px) to keep between the CTA button and the SEO paragraph
-const KEEP_GAP = 56;
+// Space (px) kept between the CTA button and the SEO paragraph
+const KEEP_GAP = 48;
+// Must match the final lift in s3-why.js:  translateY(-q * H * .05)
+const LIFT_RATIO = 0.05;
+
+// Layout position of an element (ignores transforms, so it is not affected by the animation)
+const pageTop = (el) => {
+  let y = 0;
+  for (let n = el; n; n = n.offsetParent) y += n.offsetTop;
+  return y;
+};
 
 export default function Why() {
   useInit(init);
 
+  const secRef = useRef(null);
   const trackRef = useRef(null);
   const stageRef = useRef(null);
-  const liftRef = useRef(null);
+  const ctaRef = useRef(null);
   const seoRef = useRef(null);
 
-  // Removes the empty space left under the CTA once the pinned animation ends.
-  // It measures the real leftover space (so it works on every screen size)
-  // and pulls the SEO paragraph up by exactly that amount.
   useEffect(() => {
+    const sec = secRef.current;
     const track = trackRef.current;
     const stage = stageRef.current;
-    const lift = liftRef.current;
+    const cta = ctaRef.current;
     const seo = seoRef.current;
-    if (!track || !stage || !lift || !seo) return undefined;
+    if (!sec || !track || !stage || !cta || !seo) return undefined;
 
-    let raf = 0;
+    // The pinned stage is 100vh tall and its content sits in the middle, so when the
+    // animation ends there is empty stage space under the CTA. We compute that space
+    // from the layout (not from scroll position) and pull the paragraph up by it.
+    const fixGap = () => {
+      seo.style.removeProperty('margin-top');
+      if (!sec.classList.contains('v-pinned')) return; // static layout (mobile / reduced motion)
 
-    const measure = () => {
-      raf = 0;
-      const t = track.getBoundingClientRect();
-      const s = stage.getBoundingClientRect();
-      const l = lift.getBoundingClientRect();
+      const H = stage.clientHeight;
+      const ctaBottom = pageTop(cta) - pageTop(stage) + cta.offsetHeight - H * LIFT_RATIO;
+      const gapBelowCta = H - ctaBottom;
+      const gapToSeoBox = pageTop(seo) - (pageTop(track) + track.offsetHeight);
+      const padTop = parseFloat(getComputedStyle(seo).paddingTop) || 0;
+      const marginTop = parseFloat(getComputedStyle(seo).marginTop) || 0;
 
-      // Only measure when the sticky stage has reached the end of the track
-      // (animation finished, all transforms are in their final position).
-      const atEnd = t.bottom <= s.bottom + 2;
-      if (!atEnd) return;
-
-      const gap = s.bottom - l.bottom;
-      const pull = Math.max(0, Math.round(gap - KEEP_GAP));
-      seo.style.marginTop = pull ? `-${pull}px` : '';
+      const visualGap = gapBelowCta + gapToSeoBox + padTop;
+      const delta = visualGap - KEEP_GAP;
+      if (delta > 1) seo.style.setProperty('margin-top', `${Math.round(marginTop - delta)}px`, 'important');
     };
 
-    const schedule = () => {
-      if (!raf) raf = requestAnimationFrame(measure);
-    };
+    fixGap();
+    const t1 = setTimeout(fixGap, 300);
+    const t2 = setTimeout(fixGap, 1200);
+    window.addEventListener('resize', fixGap);
+    window.addEventListener('load', fixGap);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fixGap);
+    // init() toggles .v-pinned when the screen size / motion setting changes
+    const mo = new MutationObserver(fixGap);
+    mo.observe(sec, { attributes: true, attributeFilter: ['class'] });
 
-    const onResize = () => {
-      seo.style.marginTop = '';
-      schedule();
+    // Smooth fade-in of the paragraph once it scrolls into view (after the animation)
+    let io;
+    const show = () => {
+      seo.style.opacity = '1';
+      seo.style.transform = 'none';
     };
-
-    window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', onResize);
-    window.addEventListener('load', schedule);
-    const timer = setTimeout(schedule, 600);
-    schedule();
+    if ('IntersectionObserver' in window) {
+      io = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) { show(); io.disconnect(); }
+      }, { threshold: 0.1 });
+      io.observe(seo);
+    } else {
+      show();
+    }
 
     return () => {
-      window.removeEventListener('scroll', schedule);
-      window.removeEventListener('resize', onResize);
-      window.removeEventListener('load', schedule);
-      clearTimeout(timer);
-      if (raf) cancelAnimationFrame(raf);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      window.removeEventListener('resize', fixGap);
+      window.removeEventListener('load', fixGap);
+      mo.disconnect();
+      if (io) io.disconnect();
     };
   }, []);
 
   return (
-    <section className="s3 wrap" id="why-seek-now" aria-labelledby="v-title">
+    <section className="s3 wrap" id="why-seek-now" aria-labelledby="v-title" ref={secRef}>
       <div className="v-track" ref={trackRef}>
         <div className="v-stage" ref={stageRef}>
           <canvas className="v-canvas" aria-hidden="true" />
@@ -176,7 +196,7 @@ export default function Why() {
             <b />
           </div>
           <div className="v-reveal">
-            <div className="v-lift" ref={liftRef}>
+            <div className="v-lift">
               <div className="v-mark" role="img" aria-label="Seek Now"> <img className="logo-img" src={logo} alt="" width="136" height="34" /></div>
               <h3 className="v-h3" data-v=".72,.8">
                 One Platform.
@@ -219,7 +239,7 @@ export default function Why() {
                   <span className="d">Manage Employees</span>
                 </li>
               </ul>
-              <a className="btn btn-primary v-cta" href="#" data-route="ecosystem" data-v=".84,.9">
+              <a className="btn btn-primary v-cta" ref={ctaRef} href="#" data-route="ecosystem" data-v=".84,.9">
                 Explore the Seek Now Ecosystem
                 {' '}
                 <span className="arr" aria-hidden="true">→</span>
@@ -231,7 +251,13 @@ export default function Why() {
       <p
         className="v-seo"
         ref={seoRef}
-        style={{ position: 'relative', zIndex: 2, transition: 'margin-top .35s ease' }}
+        style={{
+          position: 'relative',
+          zIndex: 2,
+          opacity: 0,
+          transform: 'translateY(14px)',
+          transition: 'opacity .6s ease, transform .6s ease',
+        }}
       >
         Seek Now is workforce management software that brings employee referral software, recruitment management, applicant tracking and HRMS capabilities together. Simplify hiring, leave, payroll and attendance management and everyday employee administration through one connected ecosystem.
       </p>
