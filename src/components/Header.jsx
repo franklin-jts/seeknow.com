@@ -3,17 +3,33 @@ import logo from '../assets/seek-now-logo.png';
 export default function Header() {
   return (
     <>
-      {/* ── Fixed top bar — always on top (z-index:60) ── */}
+      {/* ── Fixed top bar ── */}
       <header className="site-header" id="top-header">
         <div className="wrap">
           <div className="inner">
-            <div className="nav">
-              {/* Logo — hidden until user scrolls past hero */}
+            <nav className="nav" aria-label="Main navigation">
+
+              {/* Logo */}
               <a className="logo nav-logo" href="#top" data-route="home" aria-label="Seek Now home">
                 <img className="logo-img" src={logo} alt="Seek Now" width="136" height="34" />
               </a>
 
-              {/* Single toggle button — CSS switches ☰ ↔ ✕ */}
+              {/* Desktop nav links */}
+              <ul className="nav-links" role="list">
+                <li><a href="#platform"     data-route="platform">Platform</a></li>
+                <li><a href="#ecosystem"    data-route="products">Products</a></li>
+                <li><a href="#capabilities" data-route="solutions">Solutions</a></li>
+                <li><a href="#trust"        data-route="resources">Resources</a></li>
+                <li><a href="#"             data-route="company">Company</a></li>
+              </ul>
+
+              {/* Desktop CTA */}
+              <a className="btn btn-nav-demo" href="#" data-route="demo">
+                Book a Demo
+                <span className="arr" aria-hidden="true">↗</span>
+              </a>
+
+              {/* Mobile hamburger toggle */}
               <button
                 className="burger"
                 type="button"
@@ -27,12 +43,13 @@ export default function Header() {
                 </span>
                 <span className="bur-close" aria-hidden="true">✕</span>
               </button>
-            </div>
+
+            </nav>
           </div>
         </div>
       </header>
 
-      {/* ── Full-screen overlay — sibling so backdrop-filter can't trap it ── */}
+      {/* ── Mobile full-screen overlay ── */}
       <div className="m-panel" id="m-panel" role="dialog" aria-modal="true" aria-label="Navigation">
         <div className="m-panel-top wrap">
           <div className="inner">
@@ -44,30 +61,33 @@ export default function Header() {
           <div className="inner">
             <ul className="m-nav-list">
               <li>
-                <a href="#" data-route="products">
+                <a href="#platform" data-route="platform">
+                  <span>Platform</span>
+                  <span className="m-arrow" aria-hidden="true">→</span>
+                </a>
+              </li>
+              <li>
+                <a href="#ecosystem" data-route="products">
                   <span>Products</span>
                   <span className="m-arrow" aria-hidden="true">→</span>
                 </a>
               </li>
               <li>
-                <a href="#" data-route="solutions">
+                <a href="#capabilities" data-route="solutions">
                   <span>Solutions</span>
                   <span className="m-arrow" aria-hidden="true">→</span>
                 </a>
               </li>
               <li>
-                <a href="#" data-route="platform">
-                  <span>Features</span>
-                </a>
-              </li>
-              <li>
-                <a href="#" data-route="resources">
-                  <span>Why Us</span>
+                <a href="#trust" data-route="resources">
+                  <span>Resources</span>
+                  <span className="m-arrow" aria-hidden="true">→</span>
                 </a>
               </li>
               <li>
                 <a href="#" data-route="company">
-                  <span>About</span>
+                  <span>Company</span>
+                  <span className="m-arrow" aria-hidden="true">→</span>
                 </a>
               </li>
             </ul>
@@ -78,7 +98,7 @@ export default function Header() {
           <div className="inner">
             <div className="m-foot-bar">
               <a className="m-login" href="#" data-route="login">Log in</a>
-              <a className="m-book-demo" href="#" data-route="demo">Book a Demo</a>
+              <a className="m-book-demo" href="#" data-route="demo">Book a Demo ↗</a>
             </div>
           </div>
         </div>

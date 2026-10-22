@@ -1,6 +1,8 @@
-  .s4{position:relative;isolation:isolate;overflow-x:clip;padding-block:clamp(56px,7vw,96px) clamp(56px,7vw,96px)}
+﻿  .s4{position:relative;isolation:isolate;overflow-x:clip;padding-block:clamp(56px,7vw,96px) clamp(56px,7vw,96px)}
   .s4::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(55% 40% at 50% 8%,rgba(134,96,248,.12),transparent 70%),radial-gradient(70% 45% at 50% 60%,rgba(134,96,248,.10),transparent 72%)}
-  .s4-intro{text-align:center;max-width:900px;margin:0 auto}
+  .s4-intro{text-align:center;max-width:900px;margin:0 auto;position:relative}
+  /* Spotlight: lit layer inherits text layout */
+  .s4-intro .spot-lit{text-align:center;padding:0;display:flex;flex-direction:column;align-items:center}
   .s4-h2{margin:0 0 0;font-size:clamp(2.4rem,5vw,4.8rem);font-weight:800;line-height:1.04;letter-spacing:-.034em;text-wrap:balance}
   .s4-h2 .l{display:block}
   .s4-grad{background:linear-gradient(100deg,#8660F8 0%,#A57BFF 40%,#D9C6FF 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -185,11 +187,11 @@
   }
 
 
-  /* ═══════════════════════════════════════════════════════════
-     ORBIT PREVIEW — cinematic 3D window showcase
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+     ORBIT PREVIEW â€” cinematic 3D window showcase
      Centre window: large, upright, full brightness
      Side windows:  deep perspective rotateY, scaled, dimmed
-  ═══════════════════════════════════════════════════════════ */
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
   .s4-orbit-preview {
     position: relative;
@@ -273,7 +275,7 @@
     transform: perspective(1600px) rotateY(-24deg) rotateX(4deg) scale(.72) translateX(40px) translateY(60px);
   }
 
-  /* Revealed — cinematic final positions */
+  /* Revealed â€” cinematic final positions */
   .s4-op-win--left.s4-op-in {
     opacity: .85;
     transform: perspective(1600px) rotateY(16deg) rotateX(2deg) scale(.76) translateX(-8px) translateY(22px);
@@ -354,3 +356,77 @@
     }
     .s4-op-orbit { opacity: 1 !important; transition: none !important; }
   }
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   Ecosystem cinematic story â€” reuses Story CSS
+   but scoped to .eco-story / .eco-active
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+/* Always visible â€” not hidden like the main .story which needs html.pinned */
+.eco-story {
+  display: block !important;
+  position: relative;
+  height: 400vh;          /* 3 steps Ã— ~133vh each */
+}
+
+/* Sticky stage â€” active only when JS adds .eco-active (desktop, no-reduce-motion) */
+.eco-story.eco-active .stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: visible;       /* allow captions to bleed outside */
+}
+
+/* Without eco-active: compact static layout (mobile / reduced motion) */
+.eco-story:not(.eco-active) {
+  height: auto;
+}
+.eco-story:not(.eco-active) .stage {
+  position: relative;
+  height: auto;
+  min-height: 60vw;
+  overflow: visible;
+}
+/* On mobile show captions inline, not absolute */
+.eco-story:not(.eco-active) .cap {
+  position: relative;
+  left: auto; top: auto;
+  width: 100%;
+  transform: none !important;
+  opacity: 1 !important;
+  margin-bottom: 24px;
+}
+.eco-story:not(.eco-active) .space {
+  position: relative;
+  height: 50vw;
+  min-height: 280px;
+}
+
+/* Cap headings use h3 in eco-story so bump font to match h2 size */
+.eco-story .cap-h {
+  font-size: clamp(1.6rem, 3vw, 2.8rem);
+}
+
+#eco-platform {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eco-story { height: auto !important; }
+  .eco-story .stage { position: relative; height: auto; overflow: visible; }
+  .eco-story .cap { position: relative; left: auto; top: auto; width: 100%; transform: none !important; opacity: 1 !important; }
+}
+
+/* Eco story: orbit always on, first caption starts visible */
+.eco-story .orbit { opacity: 1 !important; }
+
+/* Section 4 padding override */
+#ecosystem { padding-block: 0 !important; }
+
+/* Hide orbit ring/SVG in Section 4 */
+.eco-story .orbit { display: none !important; }
+
+/* Section 4 — orbit SVG hidden (ring removed) */
+.eco-story .orbit { display: none !important; }
+

@@ -1,42 +1,37 @@
 import useInit from '../hooks/useInit';
 import init from '../scripts/s8-faq.js';
-import Spotlight from './Spotlight.jsx';
 
 export default function Faq() {
   useInit(init);
   return (
     <section className="s8 wrap" id="faq" aria-labelledby="s8-title">
       <div className="s8-grid">
-        <Spotlight className="s8-left" scope=".s8" radius={260}>
-          {() => (
-            <>
-              <div className="s8-glow" aria-hidden="true" />
-              <span className="eyebrow">Everything You Need to Know</span>
-              <h2 className="s8-h2" id="s8-title">
-                <span>Questions?</span>
-                <span>We've Got <em>Answers.</em></span>
-              </h2>
-              <p className="s8-lede">Explore the most common questions about Seek Now, our workforce software and how our products support your organisation.</p>
-              <div className="s8-help">
-                <div className="s8-help-h">
-                  <span className="ic" aria-hidden="true">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M4 12a8 8 0 1 1 3.2 6.4L4 20l1.1-3.6A8 8 0 0 1 4 12z" />
-                      <path d="M9 10h6M9 13.5h4" />
-                    </svg>
-                  </span>
-                  <div>
-                    <b>Talk to a specialist</b>
-                    <span>Get help choosing the right products for your team.</span>
-                  </div>
-                </div>
-                <a className="s8-link" href="#" data-route="contact">
-                  Talk to Our Team <span className="arr" aria-hidden="true">→</span>
-                </a>
+        <div className="s8-left">
+          <div className="s8-glow" aria-hidden="true" />
+          <span className="eyebrow">Everything You Need to Know</span>
+          <h2 className="s8-h2" id="s8-title">
+            <span>Questions?</span>
+            <span>We've Got <em>Answers.</em></span>
+          </h2>
+          <p className="s8-lede">Explore the most common questions about Seek Now, our workforce software and how our products support your organisation.</p>
+          <div className="s8-help">
+            <div className="s8-help-h">
+              <span className="ic" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M4 12a8 8 0 1 1 3.2 6.4L4 20l1.1-3.6A8 8 0 0 1 4 12z" />
+                  <path d="M9 10h6M9 13.5h4" />
+                </svg>
+              </span>
+              <div>
+                <b>Talk to a specialist</b>
+                <span>Get help choosing the right products for your team.</span>
               </div>
-            </>
-          )}
-        </Spotlight>
+            </div>
+            <a className="s8-link" href="#" data-route="contact">
+              Talk to Our Team <span className="arr" aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
         <div className="s8-right">
           <div className="s8-tabsw">
             <div className="s8-tabs" role="tablist" aria-label="FAQ categories">

@@ -35,199 +35,26 @@ export default function init() {
   }
   document.querySelectorAll('.m-panel a').forEach(a => a.addEventListener('click', closeMenu));
 
-  /* ---- Pinned story ---- */
-  const story   = document.getElementById('story');
-  const stage   = story.querySelector('.stage');
-  const keys    = ['refer', 'console', 'people'];
-  const pw      = {};
-  keys.forEach(k => { pw[k] = stage.querySelector('.pw[data-key="' + k + '"]'); });
-  const caps    = [...stage.querySelectorAll('[data-cap]')];
-  const hint    = document.getElementById('hint');
-  const handoff = document.getElementById('handoff');
-  const handoffT= document.getElementById('handoff-t');
-  const orbit   = document.getElementById('orbit');
-  const $       = id => document.getElementById(id);
+  /* ---- Static orbit showcase (Section 2) ---- */
+  initStaticStory();
 
-  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
-  const lerp  = (a, b, t) => a + (b - a) * t;
-  const ease  = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
-
-  const mqW = matchMedia('(min-width: 860px) and (min-height: 560px)');
-  const mqR = matchMedia('(prefers-reduced-motion: reduce)');
-  let pinned = false, sw = 0, sh = 0, ww = 0, H = 0, S = null, orbitOp = 0, spinId = 0, geo = null;
-
-  const buildStates = () => {
-    const fx   = sw * .17;
-    const top  = s => 104 + H * s / 2 - sh / 2;
-    const P    = (x, y, s, r, d) => ({ x, y, s, r, d });
-    const focus = P(fx, 0, 1.04, -5, 0);
-    const nextA = P(fx + sw*.2,  sh*.17,  .6, -14, .62);
-    const nextB = P(fx + sw*.3,  sh*.25, .48, -18, .8);
-    const pastA = P(fx + sw*.2, -sh*.17,  .6, -14, .62);
-    const pastB = P(fx + sw*.3, -sh*.25, .48, -18, .8);
-    const orbit = { refer: P(-sw*.3, sh*.17, .58, 8, 0), console: P(0, sh*.12, .62, 0, 0), people: P(sw*.3, sh*.17, .58, -8, 0) };
-    return [
-      // S[0]: orbit view first — shown immediately after hero
-      orbit,
-      // S[1]: 01 Discover — Refer Now in focus
-      { refer: focus, console: nextA, people: nextB },
-      // S[2]: 02 Recruit — Console in focus
-      { refer: pastA, console: focus, people: nextA },
-      // S[3]: 03 Manage — Seek People in focus
-      { refer: pastB, console: pastA, people: focus },
-      // S[4]: final spread (same as orbit — smooth loop back)
-      orbit,
-    ];
-  };
-
-  const measure = () => {
-    sw = stage.clientWidth; sh = stage.clientHeight;
-    ww = Math.round(Math.min(sw * .48, 700, (sh - 200) * 1.35));
-    H  = ww * 440 / 680 + 32;
-    keys.forEach(k => { pw[k].style.width = ww + 'px'; });
-    orbit.setAttribute('viewBox', '0 0 ' + sw + ' ' + sh);
-    S  = buildStates();
-    const u  = S[4], cx = sw / 2, cy = sh / 2;
-    const cs = keys.map(k => ({ x: cx + u[k].x, y: cy + u[k].y, b: cy + u[k].y + (H * u[k].s) / 2 - 16 }));
-    geo = { cx, cy: cy + sh * .15, rx: sw * .44, ry: sh * .27, cs };
-    ['o-ring', 'o-ring2'].forEach(id => {
-      const e = $(id);
-      e.setAttribute('cx', geo.cx); e.setAttribute('cy', geo.cy);
-      e.setAttribute('rx', geo.rx); e.setAttribute('ry', geo.ry);
-    });
-    const nb = cs.map(c => ({ x: c.x, y: c.b + 26 }));
-    $('o-link').setAttribute('d',
-      `M${nb[0].x},${nb[0].y} Q${(nb[0].x+nb[1].x)/2},${nb[0].y+34} ${nb[1].x},${nb[1].y}` +
-      ` Q${(nb[1].x+nb[2].x)/2},${nb[1].y+34} ${nb[2].x},${nb[2].y}`
-    );
-    nb.forEach((n, i) => {
-      const c = $('o-n' + i); c.setAttribute('cx', n.x); c.setAttribute('cy', n.y);
-      const t = $('o-t' + i); t.setAttribute('x', n.x);  t.setAttribute('y', n.y + 28);
-    });
-  };
-
-  const spin = ts => {
-    if (orbitOp <= 0 || !pinned) { spinId = 0; return; }
-    const a = ts / 5200;
-    const x = geo.cx + geo.rx * Math.cos(a);
-    const y = geo.cy + geo.ry * Math.sin(a);
-    ['o-spark', 'o-halo'].forEach(id => {
-      const e = $(id); e.setAttribute('cx', x); e.setAttribute('cy', y);
-    });
-    spinId = requestAnimationFrame(spin);
-  };
-
-  const update = () => {
+  /* ---- Header scroll state ---- */
+  const updateHeader = () => {
     header.classList.toggle('scrolled', scrollY > 12);
-
-    /* Hero logo → nav logo */
     const heroLogo = document.getElementById('hero-logo');
-    if (heroLogo) {
-      document.body.classList.toggle('hero-passed', heroLogo.getBoundingClientRect().bottom < 80);
-    }
-
-    if (!pinned || !S) return;
-
-    const r     = story.getBoundingClientRect();
-    const total = story.offsetHeight - innerHeight;
-    const p     = clamp(-r.top / total);
-    const T     = p * 4;
-    const i     = Math.min(3, Math.floor(T));
-    const e     = ease(clamp((T - i - .22) / .56));
-    const t     = i + e;
-    const cur   = {};
-
-    keys.forEach(k => {
-      const a  = S[i][k], b = S[i + 1][k];
-      const v  = {
-        x: lerp(a.x, b.x, e), y: lerp(a.y, b.y, e),
-        s: lerp(a.s, b.s, e), r: lerp(a.r, b.r, e),
-        d: lerp(a.d, b.d, e)
-      };
-      cur[k] = v;
-      const el = pw[k];
-      el.style.transform = `translate(-50%,-50%) translate3d(${v.x.toFixed(1)}px,${v.y.toFixed(1)}px,0) rotateY(${v.r.toFixed(2)}deg) scale(${v.s.toFixed(4)})`;
-      el.style.setProperty('--d', v.d.toFixed(3));
-      el.style.zIndex = Math.round(v.s * 100);
-    });
-
-    stage.style.setProperty('--k1', clamp((T - .7)  / .4).toFixed(3));
-    stage.style.setProperty('--col', (3 * clamp((T - 1.72) / .6)).toFixed(3));
-    stage.style.setProperty('--k3', clamp((T - 2.75) / .45).toFixed(3));
-
-    caps.forEach((c, n) => {
-      let op, tr;
-      if (n < 3) {
-        // caps 0,1,2 = data-cap 1,2,3 (Discover, Recruit, Manage)
-        // shift by 1 so they map to T steps 1,2,3
-        const d = t - (n + 1);
-        op = clamp(1 - Math.abs(d) * 2.4);
-        tr = `translateY(calc(-50% + ${(-d * 40).toFixed(1)}px))`;
-      } else {
-        // cap-u (data-cap="4") — "Three products" — show at T≈0, fade out by T≈0.5
-        op = clamp(1 - T / 0.5);
-        tr = `translate(-50%, ${(T * 24).toFixed(1)}px)`;
-      }
-      c.style.opacity = op.toFixed(3);
-      c.style.transform = tr;
-      c.inert = op < .05;
-    });
-
-    hint.style.opacity = clamp(1 - T * 5).toFixed(3);
-
-    // Handoff chip: shows during transitions between steps 1→2 and 2→3
-    if ((i === 1 || i === 2) && e > 0 && e < 1) {
-      const from = cur[keys[i - 1]], to = cur[keys[i]];
-      const fx0 = from.x - ww * from.s * .16, fy0 = from.y - H * from.s * .12;
-      const tx0 = to.x   - ww * to.s   * (i === 1 ? .3 : .22);
-      const ty0 = to.y   - H  * to.s   * (i === 1 ? .1 : .3);
-      const hx  = lerp(fx0, tx0, e);
-      const hy  = lerp(fy0, ty0, e) - Math.sin(Math.PI * e) * 70;
-      handoffT.textContent = i === 1 ? 'Shortlisted · to Console' : 'Offer accepted · to Seek People';
-      handoff.style.transform = `translate(-50%,-50%) translate3d(${hx.toFixed(1)}px,${hy.toFixed(1)}px,0)`;
-      handoff.style.opacity   = Math.sin(Math.PI * e).toFixed(3);
-    } else {
-      handoff.style.opacity = '0';
-    }
-
-    // orbit: show fully at T=0 (initial), fade out as user scrolls into step 1
-    // and fade back in at the end (T>3.3)
-    const orbitAtStart = clamp(1 - T / 0.6);
-    const orbitAtEnd   = clamp((t - 3.3) / .5);
-    orbitOp = Math.max(orbitAtStart, orbitAtEnd);
-    orbit.style.opacity = orbitOp.toFixed(3);
-    if (orbitOp > 0 && !spinId) spinId = requestAnimationFrame(spin);
+    if (heroLogo) document.body.classList.toggle('hero-passed', heroLogo.getBoundingClientRect().bottom < 80);
   };
-
-  let ticking = false;
-  const onScroll = () => {
-    if (!ticking) {
-      ticking = true;
-      requestAnimationFrame(() => { ticking = false; update(); });
-    }
-  };
-
-  const setMode = () => {
-    pinned = mqW.matches && !mqR.matches;
-    root.classList.toggle('pinned', pinned);
-    if (pinned) measure();
-    update();
-  };
-
-  addEventListener('scroll', onScroll, { passive: true });
-  addEventListener('resize', () => { if (pinned) measure(); update(); });
-  mqW.addEventListener('change', setMode);
-  mqR.addEventListener('change', setMode);
-  setMode();
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(() => { if (pinned) { measure(); update(); } });
-  }
+  addEventListener('scroll', updateHeader, { passive: true });
+  updateHeader();
 
   /* ---- Product showcase animations (story-list section) ---- */
   initProductCards();
 
-  /* ---- Ecosystem orbit preview animations ---- */
-  initOrbitPreview();
+  /* ---- Ecosystem cinematic story (Section 4) ---- */
+  initEcoStory();
+
+  /* ---- Ecosystem tab switcher ---- */
+  initEcoTabs();
 
   /* ---- Global section scroll-reveal ---- */
   initSectionReveal();
@@ -462,4 +289,480 @@ function initOrbitPreview() {
   measure();
   window.addEventListener('resize', measure);
   io.observe(preview);
+}
+
+/* ─────────────────────────────────────────────
+   Ecosystem cinematic story (Section 4)
+   Mirrors the Section 2 pinned story logic but
+   targets #eco-story and eco-* element IDs.
+   Uses its own CSS class (eco-active) independent
+   of the global html.pinned class.
+───────────────────────────────────────────── */
+function initEcoStory() {
+  const story = document.getElementById('eco-story');
+  if (!story) return;
+
+  const stage   = story.querySelector('.stage');
+  const keys    = ['eco-refer', 'eco-console', 'eco-people'];
+  const pw      = {};
+  keys.forEach(k => { pw[k] = stage.querySelector('.pw[data-key="' + k + '"]'); });
+  const caps    = [...stage.querySelectorAll('[data-cap]')];
+  const hint    = document.getElementById('eco-hint');
+  const handoff = document.getElementById('eco-handoff');
+  const handoffT= document.getElementById('eco-handoff-t');
+  const orbit   = document.getElementById('eco-orbit');
+  const $       = id => document.getElementById(id);
+
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const lerp  = (a, b, t) => a + (b - a) * t;
+  const ease  = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+
+  const mqW = matchMedia('(min-width: 860px) and (min-height: 560px)');
+  const mqR = matchMedia('(prefers-reduced-motion: reduce)');
+  // eco-active is set directly on story element — no html.pinned dependency
+  let active = false, sw = 0, sh = 0, ww = 0, H = 0, S = null, orbitOp = 0, spinId = 0, geo = null;
+
+  const buildStates = () => {
+    const fx   = sw * .17;
+    const P    = (x, y, s, r, d) => ({ x, y, s, r, d });
+    const focus = P(fx, 0, 1.04, -5, 0);
+    const nextA = P(fx + sw*.2,  sh*.17,  .6, -14, .62);
+    const nextB = P(fx + sw*.3,  sh*.25, .48, -18, .8);
+    const pastA = P(fx + sw*.2, -sh*.17,  .6, -14, .62);
+    const pastB = P(fx + sw*.3, -sh*.25, .48, -18, .8);
+    // Start directly in Discover state (step 1 focus), no orbit intro
+    return [
+      // S[0]: Discover — Refer Now in focus
+      { 'eco-refer': focus,  'eco-console': nextA, 'eco-people': nextB },
+      // S[1]: Recruit — Console in focus
+      { 'eco-refer': pastA, 'eco-console': focus,  'eco-people': nextA },
+      // S[2]: Manage — Seek People in focus
+      { 'eco-refer': pastB, 'eco-console': pastA,  'eco-people': focus },
+      // S[3]: back to orbit spread at end
+      { 'eco-refer': P(-sw*.3, sh*.17, .58, 8, 0), 'eco-console': P(0, sh*.12, .62, 0, 0), 'eco-people': P(sw*.3, sh*.17, .58, -8, 0) },
+    ];
+  };
+
+  const measure = () => {
+    sw = stage.clientWidth; sh = stage.clientHeight;
+    ww = Math.round(Math.min(sw * .48, 700, (sh - 200) * 1.35));
+    H  = ww * 440 / 680 + 32;
+    keys.forEach(k => { if (pw[k]) pw[k].style.width = ww + 'px'; });
+    if (orbit) orbit.setAttribute('viewBox', '0 0 ' + sw + ' ' + sh);
+    S  = buildStates();
+    // Use orbit spread state (S[3]) to position orbit geometry
+    const u  = S[3], cx = sw / 2, cy = sh / 2;
+    const cs = keys.map(k => ({ x: cx + u[k].x, y: cy + u[k].y, b: cy + u[k].y + (H * u[k].s) / 2 - 16 }));
+    geo = { cx, cy: cy + sh * .15, rx: sw * .44, ry: sh * .27, cs };
+    ['eco-ring', 'eco-ring2'].forEach(id => {
+      const e = $(id); if (!e) return;
+      e.setAttribute('cx', geo.cx); e.setAttribute('cy', geo.cy);
+      e.setAttribute('rx', geo.rx); e.setAttribute('ry', geo.ry);
+    });
+    const nb = cs.map(c => ({ x: c.x, y: c.b + 26 }));
+    if ($('eco-link')) $('eco-link').setAttribute('d',
+      `M${nb[0].x},${nb[0].y} Q${(nb[0].x+nb[1].x)/2},${nb[0].y+34} ${nb[1].x},${nb[1].y}` +
+      ` Q${(nb[1].x+nb[2].x)/2},${nb[1].y+34} ${nb[2].x},${nb[2].y}`
+    );
+    nb.forEach((n, i) => {
+      const c = $('eco-n' + i); const t = $('eco-t' + i);
+      if (c) { c.setAttribute('cx', n.x); c.setAttribute('cy', n.y); }
+      if (t) { t.setAttribute('x', n.x);  t.setAttribute('y', n.y + 28); }
+    });
+  };
+
+  const spin = ts => {
+    if (orbitOp <= 0 || !active || !orbit) { spinId = 0; return; }
+    const a = ts / 5200;
+    const x = geo.cx + geo.rx * Math.cos(a);
+    const y = geo.cy + geo.ry * Math.sin(a);
+    ['eco-spark', 'eco-halo'].forEach(id => {
+      const e = $(id); if (!e) return;
+      e.setAttribute('cx', x); e.setAttribute('cy', y);
+    });
+    spinId = requestAnimationFrame(spin);
+  };
+
+  const update = () => {
+    if (!active || !S) return;
+
+    const r     = story.getBoundingClientRect();
+    const total = story.offsetHeight - innerHeight;
+    const p     = clamp(-r.top / total);
+    const T     = p * 3;                        // 3 steps: Discover, Recruit, Manage
+    const i     = Math.min(2, Math.floor(T));   // 0,1,2
+    const e     = ease(clamp((T - i - .22) / .56));
+    const t     = i + e;
+    const cur   = {};
+
+    keys.forEach(k => {
+      if (!pw[k]) return;
+      const a  = S[i][k], b = S[i + 1][k];
+      const v  = {
+        x: lerp(a.x, b.x, e), y: lerp(a.y, b.y, e),
+        s: lerp(a.s, b.s, e), r: lerp(a.r, b.r, e),
+        d: lerp(a.d, b.d, e)
+      };
+      cur[k] = v;
+      const el = pw[k];
+      el.style.transform = `translate(-50%,-50%) translate3d(${v.x.toFixed(1)}px,${v.y.toFixed(1)}px,0) rotateY(${v.r.toFixed(2)}deg) scale(${v.s.toFixed(4)})`;
+      el.style.setProperty('--d', v.d.toFixed(3));
+      el.style.zIndex = Math.round(v.s * 100);
+    });
+
+    stage.style.setProperty('--k1', clamp((T - .1) / .4).toFixed(3));
+    stage.style.setProperty('--col', (3 * clamp((T - .5) / .6)).toFixed(3));
+    stage.style.setProperty('--k3', clamp((T - 1.75) / .45).toFixed(3));
+
+    // 3 captions map to T steps 0,1,2 (data-cap 1,2,3)
+    caps.forEach((c, n) => {
+      const d  = t - n;                          // n=0→Discover at T=0
+      const op = clamp(1 - Math.abs(d) * 2.4);
+      const tr = `translateY(calc(-50% + ${(-d * 40).toFixed(1)}px))`;
+      c.style.opacity   = op.toFixed(3);
+      c.style.transform = tr;
+      c.inert = op < .05;
+    });
+
+    if (hint) hint.style.opacity = clamp(1 - T * 5).toFixed(3);
+
+    // Handoff chip between steps
+    if ((i === 0 || i === 1) && e > 0 && e < 1) {
+      const from = cur[keys[i]], to = cur[keys[i + 1]];
+      if (from && to) {
+        const fx0 = from.x - ww * from.s * .16, fy0 = from.y - H * from.s * .12;
+        const tx0 = to.x   - ww * to.s   * (i === 0 ? .3 : .22);
+        const ty0 = to.y   - H  * to.s   * (i === 0 ? .1 : .3);
+        const hx  = lerp(fx0, tx0, e);
+        const hy  = lerp(fy0, ty0, e) - Math.sin(Math.PI * e) * 70;
+        if (handoffT) handoffT.textContent = i === 0 ? 'Shortlisted · to Console' : 'Offer accepted · to Seek People';
+        if (handoff) {
+          handoff.style.transform = `translate(-50%,-50%) translate3d(${hx.toFixed(1)}px,${hy.toFixed(1)}px,0)`;
+          handoff.style.opacity   = Math.sin(Math.PI * e).toFixed(3);
+        }
+      }
+    } else {
+      if (handoff) handoff.style.opacity = '0';
+    }
+
+    // Orbit removed — skip opacity/spin updates
+    orbitOp = 0;
+    if (orbit) orbit.style.opacity = '0';
+  };
+
+  let ticking = false;
+  const onScroll = () => {
+    if (!ticking) { ticking = true; requestAnimationFrame(() => { ticking = false; update(); }); }
+  };
+
+  const setMode = () => {
+    active = mqW.matches && !mqR.matches;
+    // Apply active class directly on story — independent of html.pinned
+    story.classList.toggle('eco-active', active);
+    if (active) measure();
+    update();
+  };
+
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', () => { if (active) measure(); update(); });
+  mqW.addEventListener('change', setMode);
+  mqR.addEventListener('change', setMode);
+  setMode();
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => { if (active) { measure(); update(); } });
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Section 2 — Static orbit showcase
+   Positions the 3 windows in orbit spread and
+   runs the spinning spark. No scroll-pin.
+───────────────────────────────────────────── */
+function initStaticStory() {
+  const story = document.getElementById('story');
+  if (!story) return;
+
+  const stage  = story.querySelector('.stage-static');
+  if (!stage) return;
+
+  const keys   = ['refer', 'console', 'people'];
+  const pw     = {};
+  keys.forEach(k => { pw[k] = stage.querySelector('.pw[data-key="' + k + '"]'); });
+  const orbit  = document.getElementById('orbit');
+  const $      = id => document.getElementById(id);
+  const mqR    = matchMedia('(prefers-reduced-motion: reduce)');
+
+  let sw = 0, sh = 0, ww = 0, H = 0, geo = null, spinId = 0;
+
+  const P = (x, y, s, r) => ({ x, y, s, r });
+
+  const measure = () => {
+    sw = stage.clientWidth;
+    sh = stage.clientHeight;
+    // Window width: 48% of stage, max 720px — leaves gap between windows
+    ww = Math.round(Math.min(sw * .48, 720, (sh - 40) * 1.5));
+    H  = ww * 440 / 680 + 32;
+
+    // Orbit spread — wide horizontal gap, side windows slightly lower
+    const spread = {
+      refer:   P(-sw * .32, sh * .06, .60,  7),
+      console: P( 0,        sh * .00, .68,  0),
+      people:  P( sw * .32, sh * .06, .60, -7),
+    };
+
+    keys.forEach(k => {
+      if (!pw[k]) return;
+      const v = spread[k];
+      pw[k].style.width     = ww + 'px';
+      pw[k].style.transform = `translate(-50%,-50%) translate3d(${v.x.toFixed(1)}px,${v.y.toFixed(1)}px,0) rotateY(${v.r}deg) scale(${v.s})`;
+      pw[k].style.zIndex    = Math.round(v.s * 100);
+      pw[k].style.setProperty('--d', '0');
+    });
+
+    // Orbit SVG geometry
+    if (!orbit) return;
+    const cx = sw / 2, cy = sh / 2;
+    geo = { cx, cy: cy + sh * .12, rx: sw * .42, ry: sh * .26 };
+    orbit.setAttribute('viewBox', `0 0 ${sw} ${sh}`);
+
+    ['o-ring', 'o-ring2'].forEach(id => {
+      const e = $(id); if (!e) return;
+      e.setAttribute('cx', geo.cx); e.setAttribute('cy', geo.cy);
+      e.setAttribute('rx', geo.rx); e.setAttribute('ry', geo.ry);
+    });
+
+    // Link path connecting node positions
+    const nodeXs = [cx + spread.refer.x, cx + spread.console.x, cx + spread.people.x];
+    const nodeY  = cy + spread.refer.y + H * spread.refer.s / 2 + 30;
+    const link = $('o-link');
+    if (link) link.setAttribute('d',
+      `M${nodeXs[0]},${nodeY} Q${(nodeXs[0]+nodeXs[1])/2},${nodeY+32} ${nodeXs[1]},${nodeY}` +
+      ` Q${(nodeXs[1]+nodeXs[2])/2},${nodeY+32} ${nodeXs[2]},${nodeY}`
+    );
+    nodeXs.forEach((nx, i) => {
+      const n = $('o-n' + i); if (!n) return;
+      n.setAttribute('cx', nx); n.setAttribute('cy', nodeY);
+    });
+  };
+
+  // Spinning spark
+  const spin = ts => {
+    if (!geo) { spinId = 0; return; }
+    const a = ts / 5200;
+    const x = geo.cx + geo.rx * Math.cos(a);
+    const y = geo.cy + geo.ry * Math.sin(a);
+    ['o-spark', 'o-halo'].forEach(id => {
+      const e = $(id); if (!e) return;
+      e.setAttribute('cx', x); e.setAttribute('cy', y);
+    });
+    spinId = requestAnimationFrame(spin);
+  };
+
+  measure();
+  window.addEventListener('resize', measure);
+
+  if (!mqR.matches) {
+    spinId = requestAnimationFrame(spin);
+  }
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(measure);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Ecosystem tab switcher (Section 4)
+   Clicking Refer Now / Console / Seek People
+   animates the matching window to the cinematic
+   focus position and dims the others.
+   Also wires the spotlight on the heading zone.
+───────────────────────────────────────────── */
+function initEcoTabs() {
+  const tabs = [...document.querySelectorAll('#ecosystem .ptab')];
+  if (!tabs.length) return;
+
+  const story = document.getElementById('eco-story');
+  if (!story) return;
+
+  const stage = story.querySelector('.stage');
+  if (!stage) return;
+
+  // Keys match data-tab on buttons and data-key (prefixed) on .pw elements
+  const KEY_MAP = { refer: 'eco-refer', console: 'eco-console', people: 'eco-people' };
+  const TAB_ORDER = ['refer', 'console', 'people']; // tab index → key
+
+  const getWin = key => stage.querySelector(`.pw[data-key="${KEY_MAP[key]}"]`);
+
+  let activeKey = 'console'; // default active tab
+
+  /* ── Transition helper ── */
+  const TR = 'transform .55s cubic-bezier(.22,1,.36,1), opacity .45s ease, filter .45s ease, z-index 0s';
+
+  /* ── Build cinematic positions on demand ── */
+  const getPositions = (focusKey) => {
+    const sw = stage.clientWidth;
+    const sh = stage.clientHeight;
+    const ww = Math.round(Math.min(sw * .48, 700, (sh - 200) * 1.35));
+    const H  = ww * 440 / 680 + 32;
+    const fx = sw * .17;
+
+    // focus: centred and big
+    const focus = { x: fx, y: 0,           s: 1.04, r: -5,  op: 1,    bright: 1 };
+    // one step behind: slightly right, below, smaller
+    const nextA = { x: fx + sw*.20, y: sh*.17,  s: .60,  r: -14, op: 0.70, bright: 0.75 };
+    const nextB = { x: fx + sw*.30, y: sh*.25,  s: .48,  r: -18, op: 0.45, bright: 0.55 };
+    // one step ahead: slightly right, above, smaller
+    const pastA = { x: fx + sw*.20, y: -sh*.17, s: .60,  r: -14, op: 0.70, bright: 0.75 };
+    const pastB = { x: fx + sw*.30, y: -sh*.25, s: .48,  r: -18, op: 0.45, bright: 0.55 };
+
+    // Map each window to a position depending on which is in focus
+    const order  = TAB_ORDER; // ['refer','console','people']
+    const fi     = order.indexOf(focusKey);
+    const slots  = [pastB, pastA, focus, nextA, nextB];
+    // fi=0 → refer:focus, console:nextA, people:nextB
+    // fi=1 → refer:pastA, console:focus, people:nextA
+    // fi=2 → refer:pastB, console:pastA, people:focus
+    return {
+      refer:   slots[2 - fi],
+      console: slots[3 - fi],
+      people:  slots[4 - fi],
+    };
+  };
+
+  /* ── Apply positions to windows ── */
+  const applyPositions = (focusKey) => {
+    const pos = getPositions(focusKey);
+    TAB_ORDER.forEach(key => {
+      const el = getWin(key);
+      if (!el) return;
+      const v = pos[key];
+      el.style.transition = TR;
+      el.style.transform  = `translate(-50%,-50%) translate3d(${v.x.toFixed(1)}px,${v.y.toFixed(1)}px,0) rotateY(${v.r.toFixed(2)}deg) scale(${v.s.toFixed(4)})`;
+      el.style.opacity    = v.op.toFixed(3);
+      el.style.filter     = `brightness(${v.bright})`;
+      el.style.zIndex     = Math.round(v.s * 100);
+      // Reset the --d overlay that dims the window
+      el.style.setProperty('--d', (1 - v.bright * 0.9).toFixed(3));
+    });
+  };
+
+  /* ── Set active tab (buttons + windows) ── */
+  const setActive = (key) => {
+    if (key === activeKey) return;
+    activeKey = key;
+
+    // Update tab button states
+    tabs.forEach(t => {
+      const on = t.dataset.tab === key;
+      t.classList.toggle('ptab--active', on);
+      t.setAttribute('aria-selected', String(on));
+    });
+
+    // Animate windows — only when eco-story is NOT in eco-active pinned mode
+    // (during pinned scroll the scroll handler owns transforms)
+    if (!story.classList.contains('eco-active')) {
+      applyPositions(key);
+    } else {
+      // In pinned mode: just brighten the focused window, dim others
+      TAB_ORDER.forEach(k => {
+        const el = getWin(k);
+        if (!el) return;
+        el.style.transition = 'filter .4s ease';
+        el.style.filter = k === key ? 'brightness(1.15)' : 'brightness(0.5)';
+      });
+    }
+  };
+
+  // Init: apply default positions (non-pinned mode startup)
+  if (!story.classList.contains('eco-active')) {
+    applyPositions(activeKey);
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => setActive(tab.dataset.tab));
+  });
+
+  // Keyboard navigation
+  const tabList = document.querySelector('#ecosystem .ptabs');
+  if (tabList) {
+    tabList.addEventListener('keydown', e => {
+      const idx = tabs.findIndex(t => t === document.activeElement);
+      if (idx === -1) return;
+      let next = -1;
+      if (e.key === 'ArrowRight') next = (idx + 1) % tabs.length;
+      if (e.key === 'ArrowLeft')  next = (idx - 1 + tabs.length) % tabs.length;
+      if (next !== -1) { e.preventDefault(); tabs[next].focus(); setActive(tabs[next].dataset.tab); }
+    });
+  }
+
+  /* ── Spotlight on the Section 4 heading zone ── */
+  initS4Spotlight();
+}
+
+/* ─────────────────────────────────────────────
+   Section 4 heading text spotlight
+   Reuses .spot-zone / .spot-dim / .spot-lit
+   pattern from spotlight.css — cursor-driven
+   torch beam that reveals bright text.
+───────────────────────────────────────────── */
+function initS4Spotlight() {
+  const zone = document.getElementById('s4-spot-zone');
+  if (!zone) return;
+
+  const dim = zone.querySelector('.spot-dim');
+  const lit = zone.querySelector('.spot-lit');
+  if (!dim || !lit) return;
+
+  // Respect reduced-motion preference
+  const mqR = matchMedia('(prefers-reduced-motion: reduce)');
+  if (mqR.matches) return;
+
+  // Only on fine-pointer devices (no touch)
+  const mqFine = matchMedia('(hover: hover) and (pointer: fine)');
+  if (!mqFine.matches) return;
+
+  let rafId = 0;
+  let cx = 0, cy = 0, tx = 0, ty = 0;
+  let entered = false;
+
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  const tick = () => {
+    rafId = 0;
+    cx = lerp(cx, tx, 0.12);
+    cy = lerp(cy, ty, 0.12);
+
+    // Position relative to the zone element for the mask
+    const r = zone.getBoundingClientRect();
+    const mx = cx - r.left;
+    const my = cy - r.top;
+
+    zone.style.setProperty('--mx', mx.toFixed(1) + 'px');
+    zone.style.setProperty('--my', my.toFixed(1) + 'px');
+
+    // Viewport coords for the fixed veil
+    zone.style.setProperty('--cx', cx.toFixed(1) + 'px');
+    zone.style.setProperty('--cy', cy.toFixed(1) + 'px');
+
+    if (entered) rafId = requestAnimationFrame(tick);
+  };
+
+  zone.addEventListener('mouseenter', () => {
+    entered = true;
+    zone.classList.add('is-lit');
+    if (!rafId) rafId = requestAnimationFrame(tick);
+  });
+
+  zone.addEventListener('mouseleave', () => {
+    entered = false;
+    zone.classList.remove('is-lit');
+    cancelAnimationFrame(rafId);
+    rafId = 0;
+  });
+
+  zone.addEventListener('mousemove', e => {
+    tx = e.clientX;
+    ty = e.clientY;
+    if (!rafId && entered) rafId = requestAnimationFrame(tick);
+  });
 }

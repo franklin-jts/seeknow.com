@@ -32,12 +32,9 @@ export default function Why() {
     const seo = seoRef.current;
     if (!sec || !track || !stage || !cta || !seo) return undefined;
 
-    // The pinned stage is 100vh tall and its content sits in the middle, so when the
-    // animation ends there is empty stage space under the CTA. We compute that space
-    // from the layout (not from scroll position) and pull the paragraph up by it.
     const fixGap = () => {
       seo.style.removeProperty('margin-top');
-      if (!sec.classList.contains('v-pinned')) return; // static layout (mobile / reduced motion)
+      if (!sec.classList.contains('v-pinned')) return;
 
       const H = stage.clientHeight;
       const ctaBottom = pageTop(cta) - pageTop(stage) + cta.offsetHeight - H * LIFT_RATIO;
@@ -57,11 +54,9 @@ export default function Why() {
     window.addEventListener('resize', fixGap);
     window.addEventListener('load', fixGap);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fixGap);
-    // init() toggles .v-pinned when the screen size / motion setting changes
     const mo = new MutationObserver(fixGap);
     mo.observe(sec, { attributes: true, attributeFilter: ['class'] });
 
-    // Smooth fade-in of the paragraph once it scrolls into view (after the animation)
     let io;
     const show = () => {
       seo.style.opacity = '1';
@@ -204,42 +199,7 @@ export default function Why() {
                 <span className="v-grad">One Workforce Operating System.</span>
               </h3>
               <p className="v-p" data-v=".75,.83">Discover talent, manage recruitment and simplify employee operations with Seek Now.</p>
-              <p className="v-meet" data-v=".9,.98">Meet the Seek Now Ecosystem</p>
-              <ul className="v-prods" aria-label="Seek Now products">
-                <li data-v=".78,.85">
-                  <span className="ico" aria-hidden="true">
-                    <svg viewBox="0 0 24 24">
-                      <circle cx="11" cy="11" r="6" />
-                      <path d="M20 20l-4.5-4.5" />
-                    </svg>
-                  </span>
-                  <strong>Refer Now</strong>
-                  <span className="d">Discover Talent</span>
-                </li>
-                <li data-v=".8,.87">
-                  <span className="ico" aria-hidden="true">
-                    <svg viewBox="0 0 24 24">
-                      <rect x="4" y="4" width="4.5" height="16" rx="1.5" />
-                      <rect x="10" y="4" width="4.5" height="11" rx="1.5" />
-                      <rect x="16" y="4" width="4" height="7" rx="1.5" />
-                    </svg>
-                  </span>
-                  <strong>Console</strong>
-                  <span className="d">Manage Recruitment</span>
-                </li>
-                <li data-v=".82,.89">
-                  <span className="ico" aria-hidden="true">
-                    <svg viewBox="0 0 24 24">
-                      <circle cx="9" cy="8" r="3.2" />
-                      <circle cx="17" cy="9" r="2.5" />
-                      <path d="M3 19c.7-3 3-4.5 6-4.5s5.3 1.5 6 4.5M15.5 14.3c2.6-.4 4.6.9 5.5 3.7" />
-                    </svg>
-                  </span>
-                  <strong>Seek People</strong>
-                  <span className="d">Manage Employees</span>
-                </li>
-              </ul>
-              <a className="btn btn-primary v-cta" ref={ctaRef} href="#" data-route="ecosystem" data-v=".84,.9">
+              <a className="btn btn-primary v-cta" ref={ctaRef} href="#ecosystem" data-route="ecosystem" data-v=".84,.9">
                 Explore the Seek Now Ecosystem
                 {' '}
                 <span className="arr" aria-hidden="true">→</span>

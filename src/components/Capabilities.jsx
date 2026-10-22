@@ -26,13 +26,7 @@ export default function Capabilities() {
             </div>
             <div className="s6-texts">
               <article className="c6-ch" data-c="0" style={{ "--r": "1", "--cacc": "#62D9C9" }} aria-labelledby="c6-h1">
-                <p className="c6-eyebrow">
-                  01
-                  {' '}
-                  <span>/</span>
-                  {' '}
-                  SMART ATTENDANCE
-                </p>
+                <p className="c6-eyebrow">01 <span>/</span> SMART ATTENDANCE</p>
                 <h3 id="c6-h1">Every Check-In. Accounted For.</h3>
                 <p>Make attendance management more reliable with face recognition, location-aware check-ins and shift-based attendance tracking.</p>
                 <ul className="c6-feats">
@@ -42,17 +36,7 @@ export default function Capabilities() {
                 </ul>
               </article>
               <article className="c6-ch" data-c="1" style={{ "--r": "3", "--cacc": "#B991FF" }} aria-labelledby="c6-h2">
-                <p className="c6-eyebrow">
-                  02
-                  {' '}
-                  <span>/</span>
-                  {' '}
-                  PAYROLL
-                  {' '}
-                  &amp;
-                  {' '}
-                  COMPLIANCE
-                </p>
+                <p className="c6-eyebrow">02 <span>/</span> PAYROLL &amp; COMPLIANCE</p>
                 <h3 id="c6-h2">Complex Payroll. Clearer Processes.</h3>
                 <p>Organise payroll inputs, salary components and statutory deductions through structured payroll workflows designed for Indian businesses.</p>
                 <ul className="c6-feats">
@@ -62,13 +46,7 @@ export default function Capabilities() {
                 </ul>
               </article>
               <article className="c6-ch" data-c="2" style={{ "--r": "5", "--cacc": "#7C95FF" }} aria-labelledby="c6-h3">
-                <p className="c6-eyebrow">
-                  03
-                  {' '}
-                  <span>/</span>
-                  {' '}
-                  FLEXIBLE WORKFORCE OPERATIONS
-                </p>
+                <p className="c6-eyebrow">03 <span>/</span> FLEXIBLE WORKFORCE OPERATIONS</p>
                 <h3 id="c6-h3">Your Workforce. Your Way of Working.</h3>
                 <p>Configure shifts, attendance cycles and role-based access to support the way your organisation operates.</p>
                 <ul className="c6-feats">
