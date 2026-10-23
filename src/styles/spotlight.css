@@ -1,41 +1,28 @@
 /* ═══════════════════════════════════════════════════════════════════════
-   TextSpotlight — word-level cursor torch.
-   Each word is wrapped in .ts-word by TextSpotlight.jsx.
-   JS drives opacity directly on each span.
-
-   Rules:
-   • dim  = 0.85  →  words rest at 85% opacity (very readable)
-   • lit  = 1.00  →  words under cursor are fully bright
-   • Images, SVGs, logos, mockups: NEVER touched — only text spans.
+   TextSpotlight
+   Before hover : white #ffffff at 85% opacity  — clearly visible, slightly dim
+   Inside spotlight : purple #B991FF at 100% opacity — fully bright
 ═══════════════════════════════════════════════════════════════════════ */
 
-/* ── Word span base ─────────────────────────────────────────────────── */
-.ts-word {
-  display: inline;
-  /* Smooth fade as the torch moves over words */
-  transition: opacity 0.15s ease;
-  color: inherit;
-}
-
-/* ── While spotlight is NOT active: all words fully opaque ─────────── */
-/* Before first mouse move, text looks completely normal.                */
-html:not(.ts-on) .ts-word {
-  opacity: 1 !important;
+.ts-ch {
+  display:    inline !important;
+  color:      rgb(255, 255, 255) !important;
+  opacity:    0.85;
   transition: none;
 }
 
-/* ── Reduced motion: disable completely ────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  .ts-word {
-    opacity: 1 !important;
-    transition: none !important;
-  }
+html:not(.ts-on) .ts-ch {
+  color:      rgb(255, 255, 255) !important;
+  opacity:    0.85;
+  transition: none;
 }
 
-/* ── Touch / coarse pointer: disable completely ─────────────────────── */
+/* Reduced motion → full opacity, original colour */
+@media (prefers-reduced-motion: reduce) {
+  .ts-ch { color: inherit !important; opacity: 1 !important; transition: none !important; }
+}
+
+/* Touch / coarse pointer → full opacity, original colour */
 @media (hover: none), (pointer: coarse) {
-  .ts-word {
-    opacity: 1 !important;
-    transition: none !important;
-  }
+  .ts-ch { color: inherit !important; opacity: 1 !important; transition: none !important; }
 }

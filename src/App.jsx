@@ -32,13 +32,12 @@ export default function App() {
 
   return (
     <>
-      {/* Text-only cursor spotlight — images/SVGs/logos untouched */}
-      {/* dim=0.18 → per-letter torch; far text fades to 18%, near text is 100% */}
-      <TextSpotlight radius={240} dim={0.18} unit="char" />
+      {/* Text-only spotlight — purple at 100% inside, white at 85% outside */}
+      <TextSpotlight radius={250} unit="char" />
 
       {/* Cinematic intro — removed from DOM once complete */}
       <IntroScreen onComplete={handleIntroDone} />
-
+ 
       <Header />
       <main id="top">
         <Hero />
@@ -48,9 +47,9 @@ export default function App() {
         <Roles />
         <Capabilities />
         <Trust />
-        <Faq />
         <Pricing />
-        <Finale />
+        <Faq />
+       <Finale />
       </main>
       <Footer />
     </>

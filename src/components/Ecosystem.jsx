@@ -24,7 +24,7 @@ export default function Ecosystem() {
         </div>
 
         {/* ── Tab switcher ── */}
-        <div className="s4-tabsw" data-e="" style={{ '--i': '3' }}>
+        {/* <div className="s4-tabsw" data-e="" style={{ '--i': '3' }}>
           <div className="ptabs" role="tablist" aria-label="Seek Now products">
             <button
               className="ptab ptab--refer"
@@ -77,7 +77,7 @@ export default function Ecosystem() {
               Seek People
             </button>
           </div>
-        </div>
+        </div> */}
 
         {/* ── Pinned cinematic 3-window animation ── */}
         <section

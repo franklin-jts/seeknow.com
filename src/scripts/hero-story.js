@@ -325,21 +325,30 @@ function initEcoStory() {
   const buildStates = () => {
     const fx   = sw * .17;
     const P    = (x, y, s, r, d) => ({ x, y, s, r, d });
+
+    // S[0]: ALL 3 WINDOWS spread side-by-side (screenshot 2 fan view)
+    // This is the initial state before scrolling
+    const spread = {
+      'eco-refer':   P(-sw * .30, sh * .08, .60,  10, 0.15),
+      'eco-console': P( 0,        sh * .00, .68,   0, 0.05),
+      'eco-people':  P( sw * .30, sh * .08, .60, -10, 0.15),
+    };
+
     const focus = P(fx, 0, 1.04, -5, 0);
     const nextA = P(fx + sw*.2,  sh*.17,  .6, -14, .62);
     const nextB = P(fx + sw*.3,  sh*.25, .48, -18, .8);
     const pastA = P(fx + sw*.2, -sh*.17,  .6, -14, .62);
     const pastB = P(fx + sw*.3, -sh*.25, .48, -18, .8);
-    // Start directly in Discover state (step 1 focus), no orbit intro
+
     return [
-      // S[0]: Discover — Refer Now in focus
+      // S[0]: fan spread — all 3 visible (screenshot 2)
+      spread,
+      // S[1]: Discover — Refer Now in focus
       { 'eco-refer': focus,  'eco-console': nextA, 'eco-people': nextB },
-      // S[1]: Recruit — Console in focus
+      // S[2]: Recruit — Console in focus
       { 'eco-refer': pastA, 'eco-console': focus,  'eco-people': nextA },
-      // S[2]: Manage — Seek People in focus
+      // S[3]: Manage — Seek People in focus
       { 'eco-refer': pastB, 'eco-console': pastA,  'eco-people': focus },
-      // S[3]: back to orbit spread at end
-      { 'eco-refer': P(-sw*.3, sh*.17, .58, 8, 0), 'eco-console': P(0, sh*.12, .62, 0, 0), 'eco-people': P(sw*.3, sh*.17, .58, -8, 0) },
     ];
   };
 
@@ -389,15 +398,15 @@ function initEcoStory() {
     const r     = story.getBoundingClientRect();
     const total = story.offsetHeight - innerHeight;
     const p     = clamp(-r.top / total);
-    const T     = p * 3;                        // 3 steps: Discover, Recruit, Manage
-    const i     = Math.min(2, Math.floor(T));   // 0,1,2
+    const T     = p * 4;                        // 4 steps: spread, Discover, Recruit, Manage
+    const i     = Math.min(3, Math.floor(T));   // 0,1,2,3
     const e     = ease(clamp((T - i - .22) / .56));
     const t     = i + e;
     const cur   = {};
 
     keys.forEach(k => {
       if (!pw[k]) return;
-      const a  = S[i][k], b = S[i + 1][k];
+      const a  = S[i][k], b = S[Math.min(i + 1, 3)][k];
       const v  = {
         x: lerp(a.x, b.x, e), y: lerp(a.y, b.y, e),
         s: lerp(a.s, b.s, e), r: lerp(a.r, b.r, e),
@@ -410,13 +419,14 @@ function initEcoStory() {
       el.style.zIndex = Math.round(v.s * 100);
     });
 
-    stage.style.setProperty('--k1', clamp((T - .1) / .4).toFixed(3));
-    stage.style.setProperty('--col', (3 * clamp((T - .5) / .6)).toFixed(3));
-    stage.style.setProperty('--k3', clamp((T - 1.75) / .45).toFixed(3));
+    stage.style.setProperty('--k1', clamp((T - 1.1) / .4).toFixed(3));
+    stage.style.setProperty('--col', (3 * clamp((T - 1.5) / .6)).toFixed(3));
+    stage.style.setProperty('--k3', clamp((T - 2.75) / .45).toFixed(3));
 
-    // 3 captions map to T steps 0,1,2 (data-cap 1,2,3)
+    // 3 captions map to T steps 1, 2, 3 (data-cap 1,2,3)
+    // T=0 is the spread view with no caption shown
     caps.forEach((c, n) => {
-      const d  = t - n;                          // n=0→Discover at T=0
+      const d  = t - (n + 1);                   // n=0→Discover at T=1
       const op = clamp(1 - Math.abs(d) * 2.4);
       const tr = `translateY(calc(-50% + ${(-d * 40).toFixed(1)}px))`;
       c.style.opacity   = op.toFixed(3);
@@ -424,7 +434,7 @@ function initEcoStory() {
       c.inert = op < .05;
     });
 
-    if (hint) hint.style.opacity = clamp(1 - T * 5).toFixed(3);
+    if (hint) hint.style.opacity = clamp(1 - T * 3).toFixed(3);
 
     // Handoff chip between steps
     if ((i === 0 || i === 1) && e > 0 && e < 1) {

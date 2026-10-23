@@ -19,7 +19,7 @@ import { useEffect, useRef } from 'react';
  */
 export default function Spotlight({
   className = '',
-  radius = 220,
+  radius = 180,
   scope,
   children,
 }) {
