@@ -5,7 +5,7 @@
   .s7-h2{margin:18px 0 0;font-size:clamp(2.4rem,5vw,4.6rem);font-weight:800;line-height:1.03;letter-spacing:-.036em}
   .s7-h2 span{display:block}
   .s7-h2 .soft{font-weight:300;letter-spacing:-.03em;background:linear-gradient(100deg,#F1E9FF 0%,#C9B0FF 45%,#9E80FA 100%);-webkit-background-clip:text;background-clip:text;color:transparent;padding-bottom:.06em}
-  .s7-lede{margin:22px auto 0;max-width:60ch;font-size:clamp(1.02rem,1.3vw,1.15rem);line-height:1.7;color:var(--ink-2)}
+  .s7-lede{margin:22px auto 0;max-width:60ch;font-size:clamp(1.12rem,1.5vw,1.28rem);line-height:1.7;color:var(--ink-2)}
   .s7-fade{transition:opacity 1s var(--ease),transform 1s var(--ease)}
   .s7-fade.pre{opacity:0;transform:translateY(18px)}
 

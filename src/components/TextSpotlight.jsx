@@ -17,10 +17,10 @@ export default function TextSpotlight({ radius = 350, unit = 'char' }) {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     /* ── Colours ── */
-    // Rest: white at 85% opacity — colour stays white, only opacity animates
-    // Lit : purple (#B991FF) at 100% opacity inside the spotlight circle
-    const PURPLE = [185, 145, 255]; // #B991FF spotlight reveal colour
-    const GREY   = [255, 255, 255]; // white — same as rest, no colour shift
+    // Rest: grey at 85% opacity
+    // Lit : white at 100% opacity inside spotlight
+    const WHITE = [255, 255, 255]; // #ffffff — spotlight reveal
+    const GREY  = [100, 98,  120]; // #646478 — rest tint
 
     function lerpColor(g, o, f) {
       return 'rgb(' +
@@ -107,12 +107,12 @@ export default function TextSpotlight({ radius = 350, unit = 'char' }) {
     styleEl.textContent = `
 .ts-ch{
   display:inline !important;
-  color:rgb(255,255,255) !important;
+  color:rgb(100,98,120) !important;
   opacity:0.85;
   transition:none;
 }
 html:not(.ts-on) .ts-ch{
-  color:rgb(255,255,255) !important;
+  color:rgb(100,98,120) !important;
   opacity:0.85;
   transition:none;
 }
@@ -246,8 +246,8 @@ html:not(.ts-on) .ts-ch{
           if (fb === u._fb) continue;
           u._fb = fb;
 
-          // colour: white → purple (smooth)
-          u.style.setProperty('color', lerpColor(GREY, PURPLE, fb), 'important');
+          // colour: grey → white
+          u.style.setProperty('color', lerpColor(GREY, WHITE, fb), 'important');
           // opacity: 0.85 → 1.0 (smooth)
           u.style.opacity = (0.85 + 0.15 * fb).toFixed(3);
         }

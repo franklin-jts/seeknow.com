@@ -6,7 +6,7 @@
   .s5-h2 .hl{display:block;transition:opacity .8s var(--ease),transform .8s var(--ease),filter .8s var(--ease)}
   .s5-h2 .hl:nth-child(2){transition-delay:.12s}
   .s5-h2 .hl:nth-child(3){transition-delay:.24s;color:var(--lav);background:linear-gradient(100deg,#D9C6FF,#B991FF 45%,#8C6BFA);-webkit-background-clip:text;background-clip:text;color:transparent;padding-bottom:.05em}
-  .s5-lede{margin:22px auto 0;max-width:58ch;font-size:clamp(1.02rem,1.3vw,1.15rem);line-height:1.65;color:var(--ink-2);transition:opacity .8s var(--ease) .36s,transform .8s var(--ease) .36s}
+  .s5-lede{margin:22px auto 0;max-width:58ch;font-size:clamp(1.12rem,1.5vw,1.28rem);line-height:1.65;color:var(--ink-2);transition:opacity .8s var(--ease) .36s,transform .8s var(--ease) .36s}
   .s5-emerge{transition:opacity .9s var(--ease) .5s,transform .9s var(--ease) .5s}
   .s5-js.wait .s5-h2 .hl{opacity:0;transform:translateY(.4em);filter:blur(10px)}
   .s5-js.wait .s5-lede,.s5-js.wait .s5-emerge{opacity:0;transform:translateY(28px)}
