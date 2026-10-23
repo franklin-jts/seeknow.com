@@ -32,8 +32,9 @@ export default function App() {
 
   return (
     <>
-      {/* Text-only cursor spotlight — never affects images or mockups */}
-      <TextSpotlight radius={230} dim={0.36} />
+      {/* Text-only cursor spotlight — images/SVGs/logos untouched */}
+      {/* dim=0.18 → per-letter torch; far text fades to 18%, near text is 100% */}
+      <TextSpotlight radius={240} dim={0.18} unit="char" />
 
       {/* Cinematic intro — removed from DOM once complete */}
       <IntroScreen onComplete={handleIntroDone} />

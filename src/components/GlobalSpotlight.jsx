@@ -42,10 +42,10 @@ export default function GlobalSpotlight({ radius = 260 }) {
       veil.style.background = `radial-gradient(
         circle ${RO}px at ${cx}px ${cy}px,
         transparent                      0%,
-        rgba(5, 2, 14, 0.10)            28%,
-        rgba(5, 2, 14, 0.62)            58%,
-        rgba(5, 2, 14, 0.86)            80%,
-        rgba(5, 2, 14, 0.94)           100%
+        rgba(5, 2, 14, 0.08)            22%,
+        rgba(5, 2, 14, 0.70)            52%,
+        rgba(5, 2, 14, 0.90)            74%,
+        rgba(5, 2, 14, 0.97)           100%
       )`;
     };
 
