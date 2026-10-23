@@ -323,22 +323,22 @@ function initEcoStory() {
   let active = false, sw = 0, sh = 0, ww = 0, H = 0, S = null, orbitOp = 0, spinId = 0, geo = null;
 
   const buildStates = () => {
-    const fx   = sw * .17;
+    const fx   = sw * .28;  // push focused window further right, away from caption
     const P    = (x, y, s, r, d) => ({ x, y, s, r, d });
 
     // S[0]: ALL 3 WINDOWS spread side-by-side (screenshot 2 fan view)
     // This is the initial state before scrolling
     const spread = {
-      'eco-refer':   P(-sw * .30, sh * .08, .60,  10, 0.15),
-      'eco-console': P( 0,        sh * .00, .68,   0, 0.05),
-      'eco-people':  P( sw * .30, sh * .08, .60, -10, 0.15),
+      'eco-refer':   P(-sw * .30, sh * .06, .78,  10, 0.15),
+      'eco-console': P( 0,        sh * .00, .88,   0, 0.05),
+      'eco-people':  P( sw * .30, sh * .06, .78, -10, 0.15),
     };
 
-    const focus = P(fx, 0, 1.04, -5, 0);
-    const nextA = P(fx + sw*.2,  sh*.17,  .6, -14, .62);
-    const nextB = P(fx + sw*.3,  sh*.25, .48, -18, .8);
-    const pastA = P(fx + sw*.2, -sh*.17,  .6, -14, .62);
-    const pastB = P(fx + sw*.3, -sh*.25, .48, -18, .8);
+    const focus = P(fx, 0, 0.82, -5, 0);
+    const nextA = P(fx + sw*.22,  sh*.16,  .52, -14, .62);
+    const nextB = P(fx + sw*.32,  sh*.24, .40, -18, .8);
+    const pastA = P(fx + sw*.22, -sh*.16,  .52, -14, .62);
+    const pastB = P(fx + sw*.32, -sh*.24, .40, -18, .8);
 
     return [
       // S[0]: fan spread — all 3 visible (screenshot 2)
@@ -354,7 +354,7 @@ function initEcoStory() {
 
   const measure = () => {
     sw = stage.clientWidth; sh = stage.clientHeight;
-    ww = Math.round(Math.min(sw * .48, 700, (sh - 200) * 1.35));
+    ww = Math.round(Math.min(sw * .55, 980, (sh - 120) * 1.45));
     H  = ww * 440 / 680 + 32;
     keys.forEach(k => { if (pw[k]) pw[k].style.width = ww + 'px'; });
     if (orbit) orbit.setAttribute('viewBox', '0 0 ' + sw + ' ' + sh);
@@ -515,9 +515,9 @@ function initStaticStory() {
 
     // Orbit spread — wide horizontal gap, side windows slightly lower
     const spread = {
-      refer:   P(-sw * .32, sh * .06, .60,  7),
-      console: P( 0,        sh * .00, .68,  0),
-      people:  P( sw * .32, sh * .06, .60, -7),
+      refer:   P(-sw * .32, sh * .06, .78,  7),
+      console: P( 0,        sh * .00, .88,  0),
+      people:  P( sw * .32, sh * .06, .78, -7),
     };
 
     keys.forEach(k => {

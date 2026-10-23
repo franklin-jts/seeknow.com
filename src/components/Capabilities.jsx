@@ -649,7 +649,11 @@ export default function Capabilities() {
             {' '}
             <span className="arr" aria-hidden="true">→</span>
           </a>
-          <p className="s6-seo">Seek People combines employee attendance management software, including face recognition attendance and location-aware check-ins, with shift management software and workforce scheduling software. Its payroll management software handles salary components, payroll and statutory compliance inputs such as PF, ESI and Professional Tax, as HRMS software in India built for growing teams.</p>
+          <p className="s6-seo">
+            Seek People combines attendance management, face recognition check-ins, shift scheduling and workforce management in one platform.<br />
+            Its payroll software handles salary components, PF, ESI and Professional Tax compliance for growing teams.<br />
+            Built as HRMS software in India — everything your people operations need, connected.
+          </p>
         </div>
       </div>
     </section>

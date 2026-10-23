@@ -1,10 +1,16 @@
 import useInit from '../hooks/useInit';
 import init from '../scripts/s7-trust.js';
 
+// Removes the purple gradient / glow behind "Technology Built Around People."
+// (covers the band itself, its inner wrapper and any ::before / ::after glow layers)
+const NO_BAND_BG_CSS =
+  '#s7-band,#s7-band::before,#s7-band::after,#s7-band .inner,#s7-band .inner::before,#s7-band .inner::after{background:none!important;background-image:none!important;box-shadow:none!important;filter:none!important}';
+
 export default function Trust() {
   useInit(init);
   return (
     <section className="s7" id="trust" aria-labelledby="s7-title">
+      <style>{NO_BAND_BG_CSS}</style>
       <div className="wrap">
         <div className="inner">
           <div className="s7-intro s7-fade" data-f="">

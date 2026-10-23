@@ -7,6 +7,9 @@ import logo from '../assets/seek-now-logo.png';
 const KEEP_GAP = 48;
 // Must match the final lift in s3-why.js:  translateY(-q * H * .05)
 const LIFT_RATIO = 0.05;
+// Font size of the line under the heading ("Discover talent, manage recruitment...")
+// Increase / decrease this to taste.
+const TAGLINE_FONT_SIZE = 'clamp(17px, 1.5vw, 20px)';
 
 // Layout position of an element (ignores transforms, so it is not affected by the animation)
 const pageTop = (el) => {
@@ -86,7 +89,8 @@ export default function Why() {
       <div className="v-track" ref={trackRef}>
         <div className="v-stage" ref={stageRef}>
           <canvas className="v-canvas" aria-hidden="true" />
-          <div className="v-glow" aria-hidden="true" />
+          {/* Circle glow background hidden (element kept so s3-why.js can still find it) */}
+          <div className="v-glow" aria-hidden="true" style={{ display: 'none' }} />
           <div className="v-ring" aria-hidden="true" />
           <div className="v-s1">
             <h2 className="v-h2" id="v-title">
@@ -198,7 +202,7 @@ export default function Why() {
                 {' '}
                 <span className="v-grad">One Workforce Operating System.</span>
               </h3>
-              <p className="v-p" data-v=".75,.83">Discover talent, manage recruitment and simplify employee operations with Seek Now.</p>
+              <p className="v-p" data-v=".75,.83" style={{ fontSize: TAGLINE_FONT_SIZE }}>Discover talent, manage recruitment and simplify employee operations with Seek Now.</p>
               <a className="btn btn-primary v-cta" ref={ctaRef} href="#ecosystem" data-route="ecosystem" data-v=".84,.9">
                 Explore the Seek Now Ecosystem
                 {' '}
@@ -219,7 +223,9 @@ export default function Why() {
           transition: 'opacity .6s ease, transform .6s ease',
         }}
       >
-        Seek Now is workforce management software that brings employee referral software, recruitment management, applicant tracking and HRMS capabilities together. Simplify hiring, leave, payroll and attendance management and everyday employee administration through one connected ecosystem.
+        Seek Now is workforce management software that brings employee referral software, recruitment management, applicant tracking and HRMS capabilities together.<br />
+        Simplify hiring, leave, payroll and attendance management and everyday employee administration through one connected ecosystem.<br />
+        One platform. One workforce operating system.
       </p>
     </section>
   );
