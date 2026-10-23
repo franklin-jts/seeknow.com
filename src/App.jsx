@@ -15,6 +15,7 @@ import Faq from './components/Faq.jsx';
 import Pricing from './components/Pricing.jsx';
 import Finale from './components/Finale.jsx';
 import Footer from './components/Footer.jsx';
+import TextSpotlight from './components/TextSpotlight.jsx';
 
 export default function App() {
   const [introDone, setIntroDone] = useState(false);
@@ -31,6 +32,8 @@ export default function App() {
 
   return (
     <>
+      {/* Text-only cursor spotlight — never affects images or mockups */}
+      <TextSpotlight radius={230} dim={0.36} />
 
       {/* Cinematic intro — removed from DOM once complete */}
       <IntroScreen onComplete={handleIntroDone} />

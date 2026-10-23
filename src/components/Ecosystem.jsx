@@ -7,12 +7,8 @@ export default function Ecosystem() {
     <section className="s4 wrap" id="ecosystem" aria-labelledby="s4-title">
       <div className="inner">
 
-        {/* ── Heading block — spotlight zone ── */}
-        <div className="s4-intro spot-zone" id="s4-spot-zone">
-          {/* Veil overlay (fixed, viewport-sized) */}
-          <div className="spot-dim" aria-hidden="true" />
-
-          {/* Base (always visible) layer */}
+        {/* ── Heading block ── */}
+        <div className="s4-intro">
           <span className="eyebrow">Meet the Seek Now Ecosystem</span>
           <h2 className="s4-h2" id="s4-title">
             <span className="l">Three Powerful Products.</span>
@@ -25,22 +21,6 @@ export default function Ecosystem() {
             From discovering the right talent and streamlining recruitment to managing employees
             every day, Seek Now brings essential workforce operations together in one connected ecosystem.
           </p>
-
-          {/* Lit (bright, masked to torch beam) duplicate */}
-          <div className="spot-lit" aria-hidden="true">
-            <span className="eyebrow">Meet the Seek Now Ecosystem</span>
-            <h2 className="s4-h2">
-              <span className="l">Three Powerful Products.</span>
-              <span className="l">
-                One Complete{' '}
-                <span className="s4-grad">Workforce Journey.</span>
-              </span>
-            </h2>
-            <p className="s4-lede">
-              From discovering the right talent and streamlining recruitment to managing employees
-              every day, Seek Now brings essential workforce operations together in one connected ecosystem.
-            </p>
-          </div>
         </div>
 
         {/* ── Tab switcher ── */}
@@ -146,6 +126,59 @@ export default function Ecosystem() {
             <p className="fine">Interfaces shown with illustrative sample data</p>
           </div>
         </section>
+
+        {/* ── Value strip ── */}
+        <div className="s4-strip" data-e="" style={{ '--i': '4' }}>
+          <ul>
+            <li>
+              <span className="si" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                </svg>
+              </span>
+              <div>
+                <strong>Connected Workforce Journey</strong>
+                <p>From talent discovery and recruitment to everyday people operations.</p>
+              </div>
+            </li>
+            <li>
+              <span className="si" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <rect x="2" y="3" width="20" height="14" rx="2" />
+                  <path d="M8 21h8M12 17v4" />
+                </svg>
+              </span>
+              <div>
+                <strong>Structured People Operations</strong>
+                <p>Organise hiring and employee management within one ecosystem.</p>
+              </div>
+            </li>
+            <li>
+              <span className="si" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                  <polyline points="16 7 22 7 22 13" />
+                </svg>
+              </span>
+              <div>
+                <strong>Designed for Growing Businesses</strong>
+                <p>Flexible workforce solutions built around expanding teams.</p>
+              </div>
+            </li>
+          </ul>
+          <a className="btn btn-primary" href="#platform" data-route="platform">
+            Explore the Platform <span className="arr" aria-hidden="true">→</span>
+          </a>
+        </div>
+
+        {/* ── SEO paragraph ── */}
+        <p className="s4-seo">
+          Seek Now is workforce management software made of three connected products: Refer Now for
+          employee referral software and talent discovery, Console for recruitment management software with
+          an applicant tracking system and recruitment CRM, and Seek People for HRMS software covering
+          attendance, payroll and employee management.
+        </p>
 
       </div>
     </section>

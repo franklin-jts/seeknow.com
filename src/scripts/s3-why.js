@@ -24,8 +24,10 @@ export default function init() {
       W = stage.clientWidth; H = stage.clientHeight;
       dpr = Math.min(1.5, devicePixelRatio || 1);
       cvs.width = W * dpr; cvs.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      cx = reveal.offsetLeft + mark.offsetLeft + mark.offsetWidth / 2;
-      cy = reveal.offsetTop + mark.offsetTop + mark.offsetHeight / 2;
+      // Always use the geometric centre of the stage so logos orbit the middle
+      // regardless of offsetParent chain or late-rendered children.
+      cx = W / 2;
+      cy = H / 2;
       P = Array.from({ length: 80 }, () => spawn(true));
     }
 

@@ -1,90 +1,43 @@
-/* ═══════════════════════════════════════════════════════════════
-   Torch / spotlight  —  cursor-driven beam of light over text
-   Matching the hero screenshot: dark veil + crisp bright copy
-═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════
+   TextSpotlight — word-level cursor torch.
+   Each word is wrapped in .ts-word by TextSpotlight.jsx.
+   JS drives opacity directly on each span — no background-clip tricks,
+   no overlays, no blend modes. Images / SVGs / mockups untouched.
+═══════════════════════════════════════════════════════════════════════ */
 
-.spot-zone {
-  position: relative;
-  --mx: 50%;
-  --my: 50%;
-  --cx: 50vw;
-  --cy: 40vh;
-  --spot-r: 220px;
+/* ── Word span base ─────────────────────────────────────────────────── */
+.ts-word {
+  display: inline;
+  /* Opacity transitions so the light moves smoothly, not by snapping */
+  transition: opacity 0.12s ease;
+  /* Inherit colour from the parent element — JS never changes colour,
+     only opacity. Gradient text children keep their own colour intact. */
+  color: inherit;
 }
 
-/* ── Dark veil — covers the whole viewport as a fixed overlay ── */
-.spot-dim {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.35s ease;
+/* ── When spotlight is active, word opacity is fully JS-driven ──────── */
+/* Default dim state set on mount by JS (style.opacity = dim).           */
+/* No CSS rule here overrides it — JS is the source of truth.            */
 
-  background: radial-gradient(
-    circle calc(var(--spot-r) * 1.4) at var(--cx) var(--cy),
-    /* dead centre: fully transparent — the torch hole */
-    transparent                      0%,
-    rgba(5, 2, 14, 0.08)            40%,
-    rgba(5, 2, 14, 0.52)            65%,
-    rgba(5, 2, 14, 0.80)            85%,
-    rgba(5, 2, 14, 0.88)           100%
-  );
-}
-
-/* ── Lit copy — bright duplicate, masked to the beam circle ── */
-.spot-lit {
-  position: absolute !important;
-  inset: 0;
-  margin: 0 !important;
-  max-width: none !important;
-  z-index: 2;
-  pointer-events: none;
-  user-select: none;
-  opacity: 0;
-  transition: opacity 0.35s ease;
-
-  /* Soft-edged circle mask centred on cursor-relative position */
-  -webkit-mask-image: radial-gradient(
-    circle var(--spot-r) at var(--mx) var(--my),
-    #000        0%,
-    #000        30%,
-    rgba(0,0,0,0.88) 52%,
-    rgba(0,0,0,0.35) 72%,
-    transparent 100%
-  );
-  mask-image: radial-gradient(
-    circle var(--spot-r) at var(--mx) var(--my),
-    #000        0%,
-    #000        30%,
-    rgba(0,0,0,0.88) 52%,
-    rgba(0,0,0,0.35) 72%,
-    transparent 100%
-  );
-
-  /* Boost brightness + add a faint white text-glow */
-  filter:
-    brightness(1.75)
-    saturate(1.05)
-    drop-shadow(0 0 12px rgba(255, 255, 255, 0.14));
-}
-
-.spot-lit * { pointer-events: none !important; }
-
-/* ── Activate on hover ── */
-.spot-zone.is-lit > .spot-dim,
-.spot-zone.is-lit > .spot-lit {
-  opacity: 1;
-}
-
-/* ── Reduced motion: instant switch, no fade ── */
-.spot-zone.is-calm > .spot-dim,
-.spot-zone.is-calm > .spot-lit {
+/* ── While spotlight is NOT active: all words fully opaque ─────────── */
+/* This ensures text looks normal before the user moves the mouse.       */
+html:not(.ts-on) .ts-word {
+  opacity: 1 !important;
   transition: none;
 }
 
-/* ── Touch / coarse pointer: no torch ── */
+/* ── Reduced motion: disable completely ────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ts-word {
+    opacity: 1 !important;
+    transition: none !important;
+  }
+}
+
+/* ── Touch / coarse pointer: disable completely ─────────────────────── */
 @media (hover: none), (pointer: coarse) {
-  .spot-dim,
-  .spot-lit { display: none !important; }
+  .ts-word {
+    opacity: 1 !important;
+    transition: none !important;
+  }
 }
