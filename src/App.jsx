@@ -16,8 +16,19 @@ import Pricing from './components/Pricing.jsx';
 import Finale from './components/Finale.jsx';
 import Footer from './components/Footer.jsx';
 import TextSpotlight from './components/TextSpotlight.jsx';
+import ConsolePage from './components/ConsolePage.jsx';
+import ReferNowPage from './components/ReferNowPage.jsx';
+import SolutionPage from './components/Solution.jsx';
 
 export default function App() {
+  const path = window.location.pathname.replace(/\/+$/, '') || '/';
+  if (path === '/console') return <ConsolePage />;
+  if (path === '/refer-now') return <ReferNowPage />;
+  if (path === '/solution') return <SolutionPage />;
+  return <HomePage />;
+}
+
+function HomePage() {
   const [introDone, setIntroDone] = useState(false);
 
   // Route wiring, mobile menu, header scroll state and pinned story.

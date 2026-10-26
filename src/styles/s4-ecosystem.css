@@ -3,7 +3,7 @@
   .s4-intro{text-align:center;max-width:900px;margin:0 auto}
   .s4-h2{margin:0 0 0;font-size:clamp(2.4rem,5vw,4.8rem);font-weight:800;line-height:1.04;letter-spacing:-.034em;text-wrap:balance}
   .s4-h2 .l{display:block}
-  .s4-grad{background:linear-gradient(100deg,#8660F8 0%,#A57BFF 40%,#D9C6FF 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .s4-grad{color:#ffffff}
   .s4-lede{margin:20px auto 0;max-width:62ch;font-size:clamp(1.12rem,1.5vw,1.28rem);line-height:1.65;color:var(--ink-2);text-wrap:pretty}
 
   /* tabs */

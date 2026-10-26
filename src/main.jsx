@@ -14,8 +14,12 @@ import './styles/s9-pricing.css';
 import './styles/s10-finale.css';
 import './styles/spotlight.css';
 
-/* Mark body immediately so page content stays hidden until intro ends */
-if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+/* Mark the homepage hidden only while its intro screen plays. */
+const path = window.location.pathname.replace(/\/+$/, '') || '/';
+if (
+  !['/console', '/refer-now', '/solution'].includes(path) &&
+  !matchMedia('(prefers-reduced-motion: reduce)').matches
+) {
   document.body.classList.add('intro-running');
 }
 

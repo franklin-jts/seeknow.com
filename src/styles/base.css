@@ -1190,3 +1190,166 @@
     .btn-nav-demo { display: none; }
     .burger       { display: grid; }
   }
+
+
+  
+
+
+  /* ─────────────────────────────────────────────────────────
+
+  /* ═══════════════════════════════════════════════════════════
+     Products dropdown  (desktop + mobile)
+     Smooth fade + slide-down open, fade + slide-up close,
+     per-item stagger on enter.
+  ═══════════════════════════════════════════════════════════ */
+
+  .nav-has-dropdown { position: relative; }
+
+  /* Trigger button — inherits nav-link styling */
+  .nav-dropdown-trigger {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: none; border: none; padding: 0;
+    font: inherit; font-size: inherit; font-weight: inherit;
+    color: inherit; cursor: pointer; letter-spacing: inherit;
+    transition: color .2s;
+  }
+  .nav-dropdown-trigger:hover,
+  .nav-dropdown-trigger.open { color: var(--lav); }
+
+  /* Chevron — flips on open */
+  .nav-chevron {
+    transition: transform .28s var(--ease);
+    color: currentColor; opacity: .7;
+  }
+  .nav-dropdown-trigger.open .nav-chevron { transform: rotate(180deg); }
+
+  /* ── Keyframes ── */
+  @keyframes ddOpen {
+    from { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(.97); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0)      scale(1);  }
+  }
+  @keyframes ddClose {
+    from { opacity: 1; transform: translateX(-50%) translateY(0)      scale(1);   }
+    to   { opacity: 0; transform: translateX(-50%) translateY(-8px)   scale(.97); }
+  }
+  @keyframes ddItemIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0);   }
+  }
+  @keyframes mListOpen {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0);    }
+  }
+  @keyframes mListClose {
+    from { opacity: 1; transform: translateY(0);    }
+    to   { opacity: 0; transform: translateY(-6px); }
+  }
+
+  /* ── Dropdown panel ── */
+  .nav-dropdown {
+    position: absolute;
+    top: calc(100% + 14px);
+    left: 50%;
+    /* transform origin kept in keyframes */
+    min-width: 270px;
+    background: rgba(17, 7, 33, 0.97);
+    border: 1px solid rgba(185, 145, 255, .18);
+    border-radius: 16px;
+    padding: 8px;
+    box-shadow:
+      0 24px 60px -10px rgba(0, 0, 0, .7),
+      0 0 0 1px rgba(134, 96, 248, .12),
+      0 0 40px -12px rgba(134, 96, 248, .35);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    z-index: 200;
+    animation: ddOpen .22s var(--ease) both;
+  }
+  .nav-dropdown.closing {
+    animation: ddClose .2s var(--ease) both;
+    pointer-events: none;
+  }
+
+  /* per-item stagger — open only */
+  .nav-dropdown:not(.closing) .nav-dd-item:nth-child(1) { animation: ddItemIn .22s var(--ease) .05s both; }
+  .nav-dropdown:not(.closing) .nav-dd-item:nth-child(2) { animation: ddItemIn .22s var(--ease) .10s both; }
+  .nav-dropdown:not(.closing) .nav-dd-item:nth-child(3) { animation: ddItemIn .22s var(--ease) .15s both; }
+
+  /* ── Product row ── */
+  .nav-dd-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 14px; border-radius: 10px;
+    text-decoration: none; color: var(--ink-2);
+    transition: background .2s, color .2s; cursor: pointer;
+  }
+  .nav-dd-item:hover           { background: rgba(134, 96, 248, .12); color: #fff; }
+  .nav-dd-item--active         { background: rgba(134, 96, 248, .18); color: #fff; }
+
+  /* Icon box */
+  .nav-dd-icon {
+    flex-shrink: 0;
+    display: grid; place-items: center;
+    width: 38px; height: 38px; border-radius: 10px;
+    background: rgba(134, 96, 248, .18);
+    border: 1px solid rgba(185, 145, 255, .2);
+    color: var(--lav);
+  }
+  .nav-dd-item--active .nav-dd-icon {
+    background: rgba(134, 96, 248, .35);
+    border-color: rgba(185, 145, 255, .45);
+  }
+
+  /* Text */
+  .nav-dd-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .nav-dd-name {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 14px; font-weight: 700; color: #fff; letter-spacing: -.01em;
+  }
+  .nav-dd-desc {
+    font-size: 12px; color: var(--ink-3);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* "LAUNCHING SOON" pill */
+  .nav-dd-badge {
+    font-size: 9px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--lav);
+    background: rgba(134, 96, 248, .18);
+    border: 1px solid rgba(185, 145, 255, .3);
+    border-radius: 999px; padding: 2px 7px; white-space: nowrap;
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     Mobile accordion
+  ═══════════════════════════════════════════════════════════ */
+  .m-has-dropdown { border-bottom: 1px solid rgba(255, 255, 255, .08); }
+
+  .m-nav-expand {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; padding: 22px 0;
+    background: none; border: none;
+    font: 600 clamp(1.25rem, 4vw, 1.55rem) / 1 var(--f-display);
+    color: #fff; cursor: pointer; text-align: left;
+    transition: color .2s, padding-left .2s;
+  }
+  .m-nav-expand:hover { color: var(--lav); padding-left: 6px; }
+  .m-nav-expand .m-arrow { transition: transform .28s var(--ease), opacity .2s; }
+  .m-nav-expand .m-arrow.rotate { transform: rotate(90deg); }
+
+  /* Accordion list */
+  .m-products-list {
+    padding: 4px 0 16px;
+    display: flex; flex-direction: column; gap: 4px;
+    animation: mListOpen .22s var(--ease) both;
+    overflow: hidden;
+  }
+  .m-products-list.closing {
+    animation: mListClose .2s var(--ease) both;
+    pointer-events: none;
+  }
+  .m-products-list .nav-dd-item { padding: 10px 12px; border-radius: 10px; }
+
+  /* stagger mobile items — open only */
+  .m-products-list:not(.closing) .nav-dd-item:nth-child(1) { animation: ddItemIn .22s var(--ease) .05s both; }
+  .m-products-list:not(.closing) .nav-dd-item:nth-child(2) { animation: ddItemIn .22s var(--ease) .10s both; }
+  .m-products-list:not(.closing) .nav-dd-item:nth-child(3) { animation: ddItemIn .22s var(--ease) .15s both; }

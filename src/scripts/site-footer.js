@@ -9,7 +9,7 @@ export default function init() {
     showPending: true,
     links: {
       demo: null, contact: null,
-      referNow: null, console: null, seekPeople: null, pricing: '#pricing',
+      referNow: '/refer-now', console: '/console', seekPeople: null, pricing: '#pricing',
       wos: '#platform', recruitment: null, employee: null, hrms: null, solutions: null,
       about: null, careers: null,
       resources: null, support: null, privacy: null, terms: null, cookies: null
@@ -22,11 +22,13 @@ export default function init() {
 
   /* finale CTAs */
   const fin = document.getElementById('finale');
-  fin.querySelectorAll('[data-route]').forEach(a => {
-    const r = SITE.links[a.dataset.route];
-    if (r) a.setAttribute('href', r);
-    else { a.setAttribute('href', '#'); a.dataset.pending = 'true'; a.title = 'Destination not connected yet'; }
-  });
+  if (fin) {
+    fin.querySelectorAll('[data-route]').forEach(a => {
+      const r = SITE.links[a.dataset.route];
+      if (r) a.setAttribute('href', r);
+      else { a.setAttribute('href', '#'); a.dataset.pending = 'true'; a.title = 'Destination not connected yet'; }
+    });
+  }
 
   /* footer links */
   const ft = document.getElementById('site-footer');
@@ -72,6 +74,7 @@ export default function init() {
   mqS.addEventListener('change', syncCols); syncCols();
 
   /* finale: arrival, staged headline, arc, gentle lift into the footer */
+  if (!fin) return;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   fin.classList.add('s10-js');
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
