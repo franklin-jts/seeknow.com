@@ -1,0 +1,26 @@
+
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/console",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/refer-now",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/solution",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/seek-people",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

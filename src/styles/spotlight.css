@@ -1,0 +1,26 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   TextSpotlight
+   Rest  : grey  rgb(100,98,120)  at 85% opacity
+   Hover : white rgb(255,255,255) at 100% opacity inside spotlight
+═══════════════════════════════════════════════════════════════════════ */
+
+.ts-ch {
+  display:    inline !important;
+  color:      rgb(100, 98, 120) !important;
+  opacity:    0.85;
+  transition: none;
+}
+
+html:not(.ts-on) .ts-ch {
+  color:      rgb(100, 98, 120) !important;
+  opacity:    0.85;
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ts-ch { color: inherit !important; opacity: 1 !important; transition: none !important; }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .ts-ch { color: inherit !important; opacity: 1 !important; transition: none !important; }
+}

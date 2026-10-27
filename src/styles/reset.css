@@ -1,0 +1,10 @@
+/* Minimal reset carried over from the original document wrapper */
+img{max-width:100%}
+[hidden]:not([hidden=until-found i]){display:none!important}
+
+/* Seek Now logo image (header, footer, "One Seek Now" hub) */
+.logo{line-height:0}
+.nav-logo .logo-img{display:block;height:30px;width:auto;transform-origin:left center;transition:opacity .3s}
+.nav-logo:hover .logo-img{opacity:.75}
+.ft-brand .logo-img{display:block;height:34px;width:auto}
+.v-mark .logo-img{display:block;height:clamp(44px,4.6vw,64px);width:auto}
