@@ -9,7 +9,7 @@ import Footer from './Footer.jsx';
 const ROUTES = {
   demo: null, contact: null, resources: null, company: null,
   pricing: '/#pricing', products: '/#platform',
-  referNow: '/refer-now', console: '/console', seekPeople: '/#ecosystem',
+  referNow: '/refer-now', console: '/console', seekPeople: '/seek-people',
 };
 
 /* ======================================================================

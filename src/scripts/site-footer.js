@@ -9,7 +9,7 @@ export default function init() {
     showPending: true,
     links: {
       demo: null, contact: null,
-      referNow: '/refer-now', console: '/console', seekPeople: null, pricing: '#pricing',
+      referNow: '/refer-now', console: '/console', seekPeople: '/seek-people', pricing: '#pricing',
       wos: '#platform', recruitment: null, employee: null, hrms: null, solutions: null,
       about: null, careers: null,
       resources: null, support: null, privacy: null, terms: null, cookies: null

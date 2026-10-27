@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import logo from '../assets/seek-now-logo-original.png';
+import logo from '../assets/seek-now-logo.png';
 
 const PRODUCTS = [
   {
@@ -83,13 +83,14 @@ export default function Header() {
   const isConsole = path === '/console';
   const isReferNow = path === '/refer-now';
   const isSolution = path === '/solution';
-  const isProductPage = isConsole || isReferNow || isSolution;
+  const isSeekPeople = path === '/seek-people';
+  const isProductPage = isConsole || isReferNow || isSolution || isSeekPeople;
   const homeSection = (section) => isProductPage ? `/#${section}` : `#${section}`;
   const homeTop = isProductPage ? '/' : '#top';
   const products = PRODUCTS.map((product) => ({
     ...product,
-    href: product.id === 'console' ? '/console' : product.id === 'refer' ? '/refer-now' : homeSection('ecosystem'),
-    active: product.id === 'console' ? isConsole : product.id === 'refer' ? isReferNow : false,
+    href: product.id === 'console' ? '/console' : product.id === 'refer' ? '/refer-now' : product.id === 'people' ? '/seek-people' : homeSection('ecosystem'),
+    active: product.id === 'console' ? isConsole : product.id === 'refer' ? isReferNow : product.id === 'people' ? isSeekPeople : false,
   }));
 
   // Desktop dropdown: 3 states — closed | open | closing
@@ -171,8 +172,8 @@ export default function Header() {
             <nav className="nav" aria-label="Main navigation">
 
               {/* Logo */}
-              <a className="logo nav-logo" href={homeTop} data-route={isProductPage ? undefined : 'home'} aria-label="Seek Now home">
-                <img className="logo-img" src={logo} alt="Seek Now" width="136" height="30" />
+              <a className={`logo nav-logo${isProductPage ? ' product-page-logo' : ''}`} href={homeTop} data-route={isProductPage ? undefined : 'home'} aria-label="Seek Now home">
+                <img className="logo-img" src={logo} alt="Seek Now" width="136" height="34" />
               </a>
 
               {/* Desktop nav links */}

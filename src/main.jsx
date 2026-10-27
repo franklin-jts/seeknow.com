@@ -17,7 +17,7 @@ import './styles/spotlight.css';
 /* Mark the homepage hidden only while its intro screen plays. */
 const path = window.location.pathname.replace(/\/+$/, '') || '/';
 if (
-  !['/console', '/refer-now', '/solution'].includes(path) &&
+  !['/console', '/refer-now', '/solution', '/seek-people'].includes(path) &&
   !matchMedia('(prefers-reduced-motion: reduce)').matches
 ) {
   document.body.classList.add('intro-running');

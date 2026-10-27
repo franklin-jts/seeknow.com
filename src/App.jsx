@@ -19,12 +19,14 @@ import TextSpotlight from './components/TextSpotlight.jsx';
 import ConsolePage from './components/ConsolePage.jsx';
 import ReferNowPage from './components/ReferNowPage.jsx';
 import SolutionPage from './components/Solution.jsx';
+import SeekPeoplePage from './components/SeekPeoplePage.jsx';
 
 export default function App() {
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
   if (path === '/console') return <ConsolePage />;
   if (path === '/refer-now') return <ReferNowPage />;
   if (path === '/solution') return <SolutionPage />;
+  if (path === '/seek-people') return <SeekPeoplePage />;
   return <HomePage />;
 }
 

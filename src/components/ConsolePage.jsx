@@ -1,33 +1,28 @@
-/* Seek Now · Console product page — single-file React component.
-   Usage: import ConsolePage from './console.js';  (styles: ./console-page.css)
-   Generated from console.html. Logic and markup are identical to the standalone page,
-   plus: StrictMode-safe layout guards, tracked listeners/timers, hero width hardening. */
-/* eslint-disable */
-import { createElement as h, useEffect, useLayoutEffect, useRef, useState } from "react";
+/* Seek Now · Console product page (React).
+   Usage:  import ConsolePage from "./ConsolePage.jsx";   <ConsolePage />
+   Styles: ./console-page.css (all rules scoped under .console-page).
+   Section markup, CSS and animation/scroll logic are generated from console.html,
+   so behaviour matches the standalone page 1:1. React owns the header, footer,
+   routing hooks, lifecycle and cleanup (StrictMode-safe). */
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import "./console-page.css";
+import logo from "../assets/seek-now-logo.png";
 
-// ---------- routes ----------
-var ROUTES = {
-  demo: null,        // "Book a Demo" / "Book a Console Demo"
-  contact: null,     // "Talk to Our Team"
-  resources: null,
-  company: null,
-  platform: "./#platform",
-  solutions: "solutions.html",
-  referNow: "/refer-now",
-  console: "console.html",
-  seekPeople: "seek-people.html",
-  pricing: "./#pricing"
+const h = React.createElement;
+
+// ---------- routes: set a URL, or leave null until the page exists ----------
+export const ROUTES = {
+  demo: null, contact: null, resources: null, company: null,
+  platform: "./#platform", solutions: "solutions.html",
+  referNow: "/refer-now", console: "console.html", seekPeople: "/seek-people", pricing: "./#pricing",
 };
-var FOOTER = {
-  showPending: true, // false = omit unlinked items (production)
-  links: {
-    demo: null, contact: null, referNow: ROUTES.referNow, console: ROUTES.console, seekPeople: ROUTES.seekPeople,
+const FOOTER = {
+  showPending: true, // false = hide items that have no route yet
+  links: { demo: null, contact: null, referNow: ROUTES.referNow, console: ROUTES.console, seekPeople: ROUTES.seekPeople,
     pricing: ROUTES.pricing, wos: "./#platform", recruitment: null, employee: null, hrms: null, solutions: ROUTES.solutions,
-    about: null, careers: null, resources: null, support: null, privacy: null, terms: null, cookies: null
-  },
-  social: [], // { name: 'LinkedIn', url: '...' }
-  legalEntity: null
+    about: null, careers: null, resources: null, support: null, privacy: null, terms: null, cookies: null },
+  social: [], // [{ name: "LinkedIn", url: "..." }]
+  legalEntity: null,
 };
 
 // ---------- header ----------
@@ -36,16 +31,10 @@ function RouteLink({ to, className, children, onClick }) {
   return h("a", { className, href: href || "#", "data-pending": href ? undefined : "true",
     onClick: (e) => { if (!href) e.preventDefault(); onClick && onClick(e); } }, children);
 }
-var Soon = () => h("em", { className: "soon" }, "Launching soon");
-var Logo = ({ id }) => h("a", { className: "logo", href: "./", "aria-label": "Seek Now home" },
-  h("svg", { width: 30, height: 30, viewBox: "0 0 32 32", "aria-hidden": "true" },
-    h("defs", null, h("linearGradient", { id, x1: "0", y1: "0", x2: "1", y2: "1" },
-      h("stop", { offset: "0", stopColor: "#B991FF" }), h("stop", { offset: "1", stopColor: "#8660F8" }))),
-    h("rect", { width: 32, height: 32, rx: 9, fill: `url(#${id})` }),
-    h("circle", { cx: 14.5, cy: 14.5, r: 6, fill: "none", stroke: "#0D0618", strokeWidth: 2.6 }),
-    h("path", { d: "M19 19l5 5", stroke: "#0D0618", strokeWidth: 2.6, strokeLinecap: "round" })),
-  h("span", null, "Seek ", h("b", null, "Now")));
-var DdIcon = ({ children }) => h("span", { className: "dd-ic", "aria-hidden": "true" }, h("svg", { viewBox: "0 0 24 24" }, children));
+const Soon = ({ label = "Launching soon" }) => h("em", { className: "soon" }, label);
+const Logo = () => h("a", { className: "logo", href: "/", "aria-label": "Seek Now home" },
+  h("img", { src: logo, alt: "Seek Now", width: 136, height: 34 }));
+const DdIcon = ({ children }) => h("span", { className: "dd-ic", "aria-hidden": "true" }, h("svg", { viewBox: "0 0 24 24" }, children));
 
 function ConsoleHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -67,7 +56,7 @@ function ConsoleHeader() {
   return h("header", { className: `site-header${scrolled ? " scrolled" : ""}${open ? " open" : ""}`, id: "top-header" },
     h("div", { className: "wrap" }, h("div", { className: "inner" },
       h("nav", { className: "nav", "aria-label": "Main" },
-        h(Logo, { id: "lg" }),
+        h(Logo),
         h("ul", { className: "nav-links" },
           h("li", null, h("a", { href: ROUTES.platform }, "Platform")),
           h("li", { className: "nav-dd", ref: ddRef,
@@ -86,7 +75,6 @@ function ConsoleHeader() {
                 h(DdIcon, null, h("circle", { cx: 9, cy: 8, r: 3.2 }), h("circle", { cx: 17, cy: 9, r: 2.5 }), h("path", { d: "M3 19c.7-3 3-4.5 6-4.5s5.3 1.5 6 4.5M15.5 14.3c2.6-.4 4.6.9 5.5 3.7" })),
                 h("span", null, h("b", null, "Seek People"), h("small", null, "HRMS & employee management"))))),
           h("li", null, h("a", { href: ROUTES.solutions }, "Solutions")),
-          h("li", null, h(RouteLink, { to: "resources" }, "Resources")),
           h("li", null, h(RouteLink, { to: "company" }, "Company"))),
         h(RouteLink, { to: "demo", className: "nav-cta" }, "Book a Demo ", h("span", { "aria-hidden": "true" }, "\u2197")),
         h("button", { className: "burger", type: "button", id: "burger", "aria-expanded": open, "aria-controls": "m-panel", "aria-label": open ? "Close menu" : "Open menu", onClick: () => setOpen((v) => !v) }, h("span"))),
@@ -98,43 +86,41 @@ function ConsoleHeader() {
             h("a", { href: ROUTES.console, "aria-current": "page", onClick: closeAll }, "Console"),
             h("a", { href: ROUTES.seekPeople, onClick: closeAll }, "Seek People")),
           h("li", null, h("a", { href: ROUTES.solutions, onClick: closeAll }, "Solutions")),
-          h("li", null, h(RouteLink, { to: "resources", onClick: closeAll }, "Resources")),
           h("li", null, h(RouteLink, { to: "company", onClick: closeAll }, "Company"))),
         h(RouteLink, { to: "demo", className: "nav-cta", onClick: closeAll }, "Book a Demo ", h("span", { "aria-hidden": "true" }, "\u2197"))))));
 }
 
 // ---------- footer ----------
-var ICON = {
+const ICON = {
   LinkedIn: "M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.06c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.77 2.65 4.77 6.1V21h-4v-5.1c0-1.22-.02-2.79-1.7-2.79-1.7 0-1.96 1.33-1.96 2.7V21h-4z",
   Facebook: "M13.5 21v-7.5h2.5l.4-3h-2.9V8.6c0-.87.25-1.46 1.5-1.46h1.6V4.46A21 21 0 0 0 14.3 4.3c-2.3 0-3.8 1.4-3.8 3.97v2.23H8v3h2.5V21z",
-  YouTube: "M21.6 7.2a2.5 2.5 0 0 0-1.8-1.8C18.2 5 12 5 12 5s-6.2 0-7.8.4A2.5 2.5 0 0 0 2.4 7.2 26 26 0 0 0 2 12a26 26 0 0 0 .4 4.8 2.5 2.5 0 0 0 1.8 1.8c1.6.4 7.8.4 7.8.4s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8A26 26 0 0 0 22 12a26 26 0 0 0-.4-4.8zM10 15V9l5.2 3z"
+  YouTube: "M21.6 7.2a2.5 2.5 0 0 0-1.8-1.8C18.2 5 12 5 12 5s-6.2 0-7.8.4A2.5 2.5 0 0 0 2.4 7.2 26 26 0 0 0 2 12a26 26 0 0 0 .4 4.8 2.5 2.5 0 0 0 1.8 1.8c1.6.4 7.8.4 7.8.4s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8A26 26 0 0 0 22 12a26 26 0 0 0-.4-4.8zM10 15V9l5.2 3z",
 };
-var COLUMNS = [
+const COLUMNS = [
   { id: "products", title: "Products", items: [["Refer Now", "referNow", true], ["Console", "console"], ["Seek People", "seekPeople"], ["Pricing", "pricing"]] },
   { id: "platform", title: "Platform & Solutions", items: [["Workforce Operating System", "wos"], ["Recruitment Management", "recruitment"], ["Employee Management", "employee"], ["HRMS", "hrms"], ["Solutions", "solutions"]] },
   { id: "company", title: "Company", items: [["About Us", "about"], ["Contact Us", "contact"], ["Careers", "careers"], ["Book a Demo", "demo"]] },
-  { id: "res", title: "Resources & Legal", items: [["Resources", "resources"], ["Help & Support", "support"], ["Privacy Policy", "privacy"], ["Terms of Service", "terms"], ["Cookie Policy", "cookies"]] }
+  { id: "res", title: "Resources & Legal", items: [["Resources", "resources"], ["Help & Support", "support"], ["Privacy Policy", "privacy"], ["Terms of Service", "terms"], ["Cookie Policy", "cookies"]] },
 ];
-var LEGAL = [["privacy", "Privacy Policy"], ["terms", "Terms of Service"], ["cookies", "Cookie Policy"]];
+const LEGAL = [["privacy", "Privacy Policy"], ["terms", "Terms of Service"], ["cookies", "Cookie Policy"]];
 
 function ConsoleFooter() {
   const [small, setSmall] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 560px)");
     const on = () => setSmall(mq.matches);
-    on();
-    mq.addEventListener("change", on);
+    on(); mq.addEventListener("change", on);
     return () => mq.removeEventListener("change", on);
   }, []);
   const { links, showPending, social, legalEntity } = FOOTER;
   let pending = 0;
-  const cols = COLUMNS.map((col) => ({ ...col, items: col.items.filter(([, key]) => { if (links[key]) return true; pending++; return showPending; }) })).filter((c) => c.items.length);
+  const cols = COLUMNS.map((c) => ({ ...c, items: c.items.filter(([, k]) => { if (links[k]) return true; pending++; return showPending; }) })).filter((c) => c.items.length);
   const socials = social.filter((s) => s && s.url && ICON[s.name]);
   const legal = LEGAL.filter(([k]) => links[k]);
   return h("footer", { className: "ft wrap", id: "site-footer" },
     h("div", { className: "ft-top" },
       h("div", { className: "ft-brand" },
-        h(Logo, { id: "lgf" }),
+        h(Logo),
         h("p", { className: "ft-tag" }, "Seek Now \u2014 The Workforce Operating System"),
         h("p", null, "Technology for discovering talent, managing recruitment and supporting people at work."),
         socials.length > 0 && h("ul", { className: "ft-soc", "aria-label": "Seek Now on social media" },
@@ -147,16 +133,16 @@ function ConsoleFooter() {
             h("summary", { id: `ft-h-${col.id}` }, col.title, h("i", { "aria-hidden": "true" })),
             h("ul", null, col.items.map(([label, key, soon]) => h("li", { key },
               links[key] ? h("a", { href: links[key] }, label) : h("span", { className: "ft-pend", title: "Route not configured yet" }, label),
-              soon && h("em", { className: "soon" }, "Soon")))))))),
+              soon && h(Soon, { label: "Soon" })))))))),
     ),
-    pending > 0 && showPending && h("p", { className: "ft-dev" }, h("span", null, "Dev preview"), "Dotted items have no route yet. Set FOOTER.showPending to false to omit them."),
+    pending > 0 && showPending && h("p", { className: "ft-dev" }, "Dev preview \u00B7 dotted items have no route yet. Set FOOTER.showPending to false to hide them."),
     h("div", { className: "ft-bot" },
       h("p", { style: { margin: 0 } }, "\u00A9 ", new Date().getFullYear(), " Seek Now. All rights reserved.", legalEntity ? ` ${legalEntity}.` : ""),
       h("nav", { "aria-label": "Legal" }, h("ul", null, legal.map(([k, t]) => h("li", { key: k }, h("a", { href: links[k] }, t)))))));
 }
 
-// ---------- section markup (from console.html) ----------
-var heroHtml = `<section class="cx wrap" id="console-hero" aria-labelledby="cx-h1">
+// ---------- generated from console.html: section markup + animation logic ----------
+const HeroHtml = `<section class="cx wrap" id="console-hero" aria-labelledby="cx-h1">
     <div class="cx-bg" aria-hidden="true"></div>
     <div class="cx-glow" aria-hidden="true"></div>
     <div class="cx-in">
@@ -187,7 +173,7 @@ var heroHtml = `<section class="cx wrap" id="console-hero" aria-labelledby="cx-h
     <a class="cx-scroll" href="#crm-workspaces" data-cx-route="explore">SCROLL TO EXPLORE<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></a>
   </section>`;
 
-var workspacesHtml = `<section class="cs" id="crm-workspaces" aria-labelledby="cs-title">
+const WorkspacesHtml = `<section class="cs" id="crm-workspaces" aria-labelledby="cs-title">
     <div class="cs-intro">
       <span class="eyebrow" style="display:flex;justify-content:center">The Recruitment Operating Workspace</span>
       <h2 class="cs-h2" id="cs-title"><span>Three Powerful Workspaces.</span><span><em>One Seamless Recruitment Experience.</em></span></h2>
@@ -368,7 +354,7 @@ var workspacesHtml = `<section class="cs" id="crm-workspaces" aria-labelledby="c
     <p class="cs-seo">Console's recruitment CRM software brings hiring requirements, interview management software and recruitment onboarding software together as three connected workspaces within one recruitment management software product. Interfaces shown use fictional sample data.</p>
   </section>`;
 
-var diallerHtml = `<section class="adx wrap" id="auto-dialler" aria-labelledby="dd-title">
+const DiallerHtml = `<section class="adx wrap" id="auto-dialler" aria-labelledby="dd-title">
     <div class="dd-intro">
       <span class="eyebrow" style="display:flex;justify-content:center">Console Auto Dialler</span>
       <h2 class="dd-h2" id="dd-title"><span class="ln"><span>Every Call Counts.</span></span><span class="ln"><span>Every Conversation Moves Hiring Forward.</span></span></h2>
@@ -436,7 +422,7 @@ var diallerHtml = `<section class="adx wrap" id="auto-dialler" aria-labelledby="
     <p class="dd-seo">Console's recruitment auto dialler is available as web-based recruitment software and as a mobile recruitment app, so tele-recruitment teams can use the same recruitment calling software and candidate screening software from the desk or on the move.</p>
   </section>`;
 
-var screeningHtml = `<section class="rv wrap" id="resume-screening" aria-labelledby="rv-title">
+const ScreeningHtml = `<section class="rv wrap" id="resume-screening" aria-labelledby="rv-title">
     <div class="rv-intro">
       <span class="eyebrow" style="display:flex;justify-content:center">Smarter Resume Screening</span>
       <h2 class="rv-h2" id="rv-title"><span>Beyond the Resume.</span><span><em>See the Match.</em></span></h2>
@@ -514,7 +500,7 @@ var screeningHtml = `<section class="rv wrap" id="resume-screening" aria-labelle
     </div>
   </section>`;
 
-var solutionsHtml = `<section class="so wrap" id="solutions" aria-labelledby="so-title">
+const SolutionsHtml = `<section class="so wrap" id="solutions" aria-labelledby="so-title">
     <div class="so-intro">
       <span class="eyebrow" style="display:flex;justify-content:center">Built for the Way You Recruit</span>
       <h2 class="so-h2" id="so-title"><span class="ln"><span>Your Recruitment Model.</span></span><span class="ln"><span>Your Command Centre.</span></span></h2>
@@ -590,7 +576,7 @@ var solutionsHtml = `<section class="so wrap" id="solutions" aria-labelledby="so
     <p class="so-seo">Console is recruitment management software that works as recruitment software for companies and corporate recruitment software for in-house talent acquisition teams, and as recruitment consultancy software and a recruitment agency CRM for firms hiring on behalf of clients. In both cases it supports talent acquisition software needs and day-to-day recruitment team management.</p>
   </section>`;
 
-var ctaHtml = `<section class="cf wrap" id="console-demo" aria-labelledby="cf-title">
+const CtaHtml = `<section class="cf wrap" id="console-demo" aria-labelledby="cf-title">
     <div class="cf-bg" aria-hidden="true"><i></i></div>
     <div class="cf-in">
       <span class="eyebrow" style="display:flex;justify-content:center">Your Next Hire Starts Here</span>
@@ -603,7 +589,6 @@ var ctaHtml = `<section class="cf wrap" id="console-demo" aria-labelledby="cf-ti
     </div>
   </section>`;
 
-// ---------- section behaviours (from console.html) ----------
 function initWorkspaces(env) {
   const { setTimeout, setInterval, requestAnimationFrame } = env;
 
@@ -676,7 +661,6 @@ function initWorkspaces(env) {
     /* ---- pinned: measured layout ---- */
     function off(el) { let x = 0, y = 0; while (el && el !== app) { x += el.offsetLeft; y += el.offsetTop; el = el.offsetParent; } return [x, y]; }
     function layout() {
-      if (!stage.isConnected || !stage.clientWidth) return;
       const W = stage.clientWidth, H = stage.clientHeight, top = navH() + 14;
       // headline zone
       const hw = Math.min(900, W - 80);
@@ -749,8 +733,7 @@ function initWorkspaces(env) {
     }
 
     function render() {
-      raf = 0;
-      if (!stage.isConnected) return; if (mode !== 'pin' || !L) return;
+      raf = 0; if (mode !== 'pin' || !L) return;
       const r = track.getBoundingClientRect(), H = L.H, span = track.offsetHeight - H;
       const p = cl(-r.top / span), pre = cl((innerHeight - r.top) / (innerHeight * .95));
       // intro fades upward as the stage takes over
@@ -829,6 +812,7 @@ function initWorkspaces(env) {
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (mode === 'pin') layout(); else sizePreviews(); });
   
 }
+
 function initDialler(env) {
   const { setTimeout, setInterval, requestAnimationFrame } = env;
 
@@ -1005,7 +989,7 @@ function initDialler(env) {
       if (call.on && (call.ph === 'ended' || call.ph === 'saved')) call = { on: null, ph: 'ready', s: 0, t: 0, d: 0 };
       if (from === 'web') { mobMsg = ''; if (mView !== 'list') mView = 'prof'; }
       renderWeb(); renderMob();
-      if (from === 'web' && !reduce) { const w = $('dw'); w.classList.remove('sweep'); void w.offsetWidth; w.classList.add('sweep'); }
+      if (from === 'web' && !reduce) { const w = $('dw'); w.classList.remove('dd-sweep'); void w.offsetWidth; w.classList.add('dd-sweep'); }
       requestAnimationFrame(connect);
       say(`${C[i].name} selected on ${from === 'web' ? 'web' : 'mobile'}. The other preview shows the same sample candidate.`);
     }
@@ -1063,7 +1047,7 @@ function initDialler(env) {
     let swept = false, linked = false, tick = false;
     function reveal() {
       tick = false;
-      if (reduce || mqT.matches) { [webw, phw].forEach(el => { el.style.transform = ''; el.style.opacity = ''; el.style.zIndex = ''; }); pmEl.style.setProperty('--lit', 1); tag.style.opacity = ''; tag.style.transform = ''; return; }
+      if (reduce || mqS.matches) { [webw, phw].forEach(el => { el.style.transform = ''; el.style.opacity = ''; el.style.zIndex = ''; }); pmEl.style.setProperty('--lit', 1); tag.style.opacity = ''; tag.style.transform = ''; return; }
       const r = stage.getBoundingClientRect(), vh = innerHeight;
       const p = clamp((vh - r.top) / (vh * .95));
       const ew = ease(clamp(p / .42)), ep = ease(clamp((p - .38) / .4)), et = ease(clamp((p - .82) / .18));
@@ -1075,7 +1059,7 @@ function initDialler(env) {
       pmEl.style.setProperty('--lit', (.25 + .75 * clamp((ep - .5) / .5)).toFixed(3));
       tag.style.opacity = (.15 + .85 * et).toFixed(3);
       tag.style.transform = `translateY(${((1 - et) * 14).toFixed(1)}px)`;
-      if (!swept && ew > .7) { swept = true; const w = $('dw'); w.classList.add('sweep'); }
+      if (!swept && ew > .7) { swept = true; const w = $('dw'); w.classList.add('dd-sweep'); }
       if (!linked && ep > .98) { linked = true; setTimeout(connect, 150); }
     }
     addEventListener('scroll', () => { if (!tick) { tick = true; requestAnimationFrame(reveal); } }, { passive: true });
@@ -1090,6 +1074,7 @@ function initDialler(env) {
     }
   
 }
+
 function initScreening(env) {
   const { setTimeout, setInterval, requestAnimationFrame } = env;
 
@@ -1289,6 +1274,7 @@ function initScreening(env) {
     setMode();
   
 }
+
 function initSolutions(env) {
   const { setTimeout, setInterval, requestAnimationFrame } = env;
 
@@ -1438,6 +1424,7 @@ function initSolutions(env) {
     }
   
 }
+
 function initCta(env) {
   const { setTimeout, setInterval, requestAnimationFrame } = env;
 
@@ -1449,6 +1436,9 @@ function initCta(env) {
   
 }
 
+
+
+// ---------- hero (lifecycle phrases + pointer glow) ----------
 function initHero(env) {
   const { setTimeout } = env;
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1473,22 +1463,22 @@ function initHero(env) {
 }
 
 // ---------- mount helpers ----------
-var useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
-// Runs a section's init and returns one function that undoes every timer, listener and observer it created.
+// Runs a section init and returns one function that undoes every timer, listener and observer it created.
 function runTracked(init) {
   const undo = [];
   const to = new Set(), iv = new Set(), raf = new Set();
   const env = {
     setTimeout(fn, ms, ...a) { const id = window.setTimeout(() => { to.delete(id); fn(...a); }, ms); to.add(id); return id; },
     setInterval(fn, ms, ...a) { const id = window.setInterval(fn, ms, ...a); iv.add(id); return id; },
-    requestAnimationFrame(fn) { const id = window.requestAnimationFrame((t) => { raf.delete(id); fn(t); }); raf.add(id); return id; }
+    requestAnimationFrame(fn) { const id = window.requestAnimationFrame((t) => { raf.delete(id); fn(t); }); raf.add(id); return id; },
   };
   undo.push(() => { to.forEach((i) => window.clearTimeout(i)); iv.forEach((i) => window.clearInterval(i)); raf.forEach((i) => window.cancelAnimationFrame(i)); });
   const w = window, d = document;
   const origW = w.addEventListener, origD = d.addEventListener, origMM = w.matchMedia, OrigIO = w.IntersectionObserver;
-  w.addEventListener = function (t, f, o) { undo.push(() => w.removeEventListener(t, f, o)); return origW.call(this, t, f, o); };
-  d.addEventListener = function (t, f, o) { undo.push(() => d.removeEventListener(t, f, o)); return origD.call(this, t, f, o); };
+  w.addEventListener = function (t, f, o) { undo.push(() => w.removeEventListener(t, f, o)); return origW.call(w, t, f, o); };
+  d.addEventListener = function (t, f, o) { undo.push(() => d.removeEventListener(t, f, o)); return origD.call(d, t, f, o); };
   w.matchMedia = function (q) {
     const m = origMM.call(w, q);
     const add = m.addEventListener && m.addEventListener.bind(m);
@@ -1526,25 +1516,29 @@ export default function ConsolePage() {
     const meta = document.querySelector('meta[name="description"]');
     const prevDesc = meta && meta.content;
     if (meta) meta.content = "Discover Console by Seek Now, recruitment software combining CRM, ATS, Auto Dialler, resume screening, interview coordination and onboarding workflows for businesses and recruitment consultancies.";
-    const root = document.documentElement, prevBehavior = root.style.scrollBehavior;
-    root.style.scrollBehavior = "smooth";
-    return () => { document.title = prevTitle; if (meta && prevDesc != null) meta.content = prevDesc; root.style.scrollBehavior = prevBehavior; };
+    const root = document.documentElement, body = document.body;
+    const prev = { sb: root.style.scrollBehavior, rm: root.style.margin, bm: body.style.margin, bb: body.style.background, bc: body.style.color };
+    root.style.scrollBehavior = "smooth"; root.style.margin = "0";
+    body.style.margin = "0"; body.style.background = "#0D0618"; body.style.color = "#FFFFFF";
+    return () => {
+      document.title = prevTitle;
+      if (meta && prevDesc != null) meta.content = prevDesc;
+      root.style.scrollBehavior = prev.sb; root.style.margin = prev.rm;
+      body.style.margin = prev.bm; body.style.background = prev.bb; body.style.color = prev.bc;
+    };
   }, []);
 
+  // CTA buttons: "explore" scrolls to the workspaces section; others use ROUTES (or stay inert until set)
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const journey = document.getElementById("crm-workspaces");
     const cleanups = [];
     document.querySelectorAll(".console-page [data-cx-route]").forEach((a) => {
       const key = a.dataset.cxRoute;
       let fn;
       if (key === "explore") {
-        fn = (e) => { e.preventDefault(); journey && journey.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); history.replaceState(null, "", "#crm-workspaces"); };
-      } else {
-        const href = ROUTES[key];
-        if (href) a.setAttribute("href", href);
-        else { a.setAttribute("href", "#"); a.dataset.pending = "true"; a.title = "Destination not connected yet"; fn = (e) => e.preventDefault(); }
-      }
+        fn = (e) => { e.preventDefault(); const j = document.getElementById("crm-workspaces"); j && j.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); history.replaceState(null, "", "#crm-workspaces"); };
+      } else if (ROUTES[key]) a.setAttribute("href", ROUTES[key]);
+      else { a.setAttribute("href", "#"); a.dataset.pending = "true"; a.title = "Destination not connected yet"; fn = (e) => e.preventDefault(); }
       if (fn) { a.addEventListener("click", fn); cleanups.push(() => a.removeEventListener("click", fn)); }
     });
     return () => cleanups.forEach((c) => c());
@@ -1553,11 +1547,11 @@ export default function ConsolePage() {
   return h("div", { className: "console-page" },
     h(ConsoleHeader),
     h("main", { id: "top" },
-      h(Section, { html: heroHtml, init: initHero }),
-      h(Section, { html: workspacesHtml, init: initWorkspaces }),
-      h(Section, { html: diallerHtml, init: initDialler }),
-      h(Section, { html: screeningHtml, init: initScreening }),
-      h(Section, { html: solutionsHtml, init: initSolutions }),
-      h(Section, { html: ctaHtml, init: initCta })),
+      h(Section, { html: HeroHtml, init: initHero }),
+      h(Section, { html: WorkspacesHtml, init: initWorkspaces }),
+      h(Section, { html: DiallerHtml, init: initDialler }),
+      h(Section, { html: ScreeningHtml, init: initScreening }),
+      h(Section, { html: SolutionsHtml, init: initSolutions }),
+      h(Section, { html: CtaHtml, init: initCta })),
     h(ConsoleFooter));
 }

@@ -242,6 +242,11 @@
     transition:opacity .45s var(--ease), transform .45s var(--ease);
     pointer-events:none;
   }
+  .nav-logo.product-page-logo{
+    opacity:1;
+    transform:translateX(0);
+    pointer-events:auto;
+  }
   /* When scrolled past hero â€” nav logo slides in */
   .site-header.scrolled .nav-logo,
   body.hero-passed .nav-logo{
